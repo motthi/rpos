@@ -61,6 +61,6 @@ def updateByBibtex(db_name, id, bibtex, file, description=None, doi=None, isread
         #-- Register Relation --#
         for author_id in authors_id:
             a_management.create(paper_id, author_id)
-        return 1
+        return inserted_paper[0]
     except:
         return 0

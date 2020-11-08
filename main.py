@@ -58,7 +58,7 @@ class RegisterPaper(wx.Frame):
         sizer_10.Add(label_1, 0, wx.ALL, 3)
 
         self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
-        self.bibtex_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.bibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_10.Add(self.bibtex_txt, 12, wx.ALL | wx.EXPAND, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -142,6 +142,7 @@ class RegisterPaper(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
         self.db = args[2]
         self.filedialog = wx.FileDialog(self, u'選択')
         self.clfs_id = []
@@ -154,7 +155,6 @@ class RegisterPaper(wx.Frame):
         # end wxGlade
 
     def addPaper(self, event):  # wxGlade: RegisterPaper.<event_handler>
-        # event.Skip()
         bibtex = self.bibtex_txt.GetValue()
         selected_file = self.fileBibtex_txt.GetValue()
         isread = self.isread_cmb.GetSelection()
@@ -196,9 +196,27 @@ class RegisterPaper(wx.Frame):
         #--- Update TreeCtrl ---#
         p = Paper(self.db)
         a = Author(self.db)
-        papers = p.All()
+        row_len = self.GetParent().paper_grid.GetNumberRows()
+        self.GetParent().paper_grid.AppendRows()
+        self.GetParent().paper_grid.SetCellValue(row_len, 0, paper[1])
+        if(paper[2] != None):
+            self.GetParent().paper_grid.SetCellValue(row_len, 1, str(paper[2]))  # Year
+        authors = ""
+        clfs = ""
+        affs = ""
+        if(p.authors(paper[0]) != None or p.authors(paper[0]) != []):
+            for author in p.authors(paper[0]):
+                authors += author[1] + "; "
+            self.GetParent().paper_grid.SetCellValue(row_len, 2, authors)  # Author
+        if(p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
+            for clf in p.classifications(paper[0]):
+                clfs += clf[1] + "; "
+        self.GetParent().paper_grid.SetCellValue(row_len, 3, clfs)  # Classification
+        if(p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
+            for aff in p.affiliations(paper[0]):
+                affs += aff[1] + "; "
+        self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
         authors = a.All()
-        self.GetParent().indexPaper(papers)
         self.GetParent().indexAuthor(authors)
 
     def selectFile(self, event):  # wxGlade: RegisterPaper.<event_handler>
@@ -243,7 +261,8 @@ class ShowPaper(wx.Frame):
         self.SetSize((746, 559))
         self.SetTitle("rpos : Show Paper")
 
-        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+        self.panel_1 = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_1.SetScrollRate(10, 10)
 
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
@@ -332,8 +351,8 @@ class ShowPaper(wx.Frame):
         aff_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         affs = p.affiliations(self.GetParent().selected_paper[0])
         aff_name = ""
-        for clf in clfs:
-            aff_name += str(clf[1]) + "; "
+        for aff in affs:
+            aff_name += str(aff[1]) + "; "
         aff_show_lbl.SetLabel(aff_name)
         grid_sizer_1.Add(aff_show_lbl, 0, wx.ALL, 2)
 
@@ -366,8 +385,7 @@ class ShowPaper(wx.Frame):
         self.copyBibtex_btn = wx.Button(self.panel_1, wx.ID_ANY, "Copy Bibtex")
         sizer_6.Add(self.copyBibtex_btn, 0, wx.ALL, 2)
 
-        self.panel_2 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
-        self.panel_2.SetScrollRate(20, 20)
+        self.panel_2 = wx.Panel(self.panel_1, wx.ID_ANY)
         sizer_10.Add(self.panel_2, 1, wx.EXPAND, 0)
 
         sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
@@ -399,6 +417,7 @@ class ShowPaper(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.openFile, self.openFile_btn)
         self.Bind(wx.EVT_BUTTON, self.editPaper, self.editPaper_btn)
@@ -423,7 +442,7 @@ class EditPaper(wx.Frame):
         # begin wxGlade: EditPaper.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((680, 585))
+        self.SetSize((623, 625))
         self.SetTitle("rpos : Edit Paper")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -434,7 +453,7 @@ class EditPaper(wx.Frame):
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_10, 5, wx.EXPAND, 0)
+        sizer_2.Add(sizer_10, 4, wx.EXPAND, 0)
 
         label_1 = wx.StaticText(self.panel_1, wx.ID_ANY, "BibTex")
         label_1.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -443,20 +462,20 @@ class EditPaper(wx.Frame):
         self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         if(self.GetParent().selected_paper[4] != None):
             self.bibtex_txt.SetValue(self.GetParent().selected_paper[4])
-        sizer_10.Add(self.bibtex_txt, 12, wx.ALL | wx.EXPAND, 2)
+        sizer_10.Add(self.bibtex_txt, 1, wx.ALL | wx.EXPAND, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
+        sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
 
         description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_4.Add(description_lbl, 3, wx.ALL, 2)
+        sizer_4.Add(description_lbl, 0, wx.ALL, 2)
 
         self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.description_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             self.description_txt.SetValue(self.GetParent().selected_paper[6])
-        sizer_4.Add(self.description_txt, 12, wx.ALL | wx.EXPAND, 2)
+        sizer_4.Add(self.description_txt, 1, wx.ALL | wx.EXPAND, 2)
 
         sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_11, 1, wx.EXPAND, 0)
@@ -529,6 +548,7 @@ class EditPaper(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
         self.db = args[2]
         self.filedialog = wx.FileDialog(self, u'選択')
 
@@ -575,24 +595,25 @@ class EditPaper(wx.Frame):
 
         #--- Delete Old File ---#
         if(
-            self.GetParent().selected_paper[3] != None and
-            self.GetParent().selected_paper[3] != new_filepath and
-            os.path.isfile(self.GetParent().selected_paper[3])
+            self.GetParent().selected_paper[3] != None and  # 変更前のファイルがNULLではない
+            self.GetParent().selected_paper[3] != new_filepath and  # 変更前のファイルと新しいファイルが同じではない
+            os.path.isfile(self.GetParent().selected_paper[3])  # 変更前のファイルが存在する
         ):
             try:
                 os.remove(self.GetParent().selected_paper[3])
             except PermissionError:
                 wx.MessageBox(u'ファイルを削除できません\n更新処理を中断しました', u'Could not Delete', wx.ICON_ERROR)
                 return
-            #--- Copy File ---#
-            if(os.path.isfile(selected_file)):
-                shutil.copyfile(
-                    selected_file,
-                    './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
-                )
+
+        #--- Copy File ---#
+        if(not(os.path.isfile(new_filepath))):
+            shutil.copyfile(
+                selected_file,
+                './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
+            )
 
         #--- Update Paper Information ---#
-        updateByBibtex(
+        paper = updateByBibtex(
             self.db,
             self.GetParent().selected_paper[0],
             bibtex,
@@ -623,10 +644,28 @@ class EditPaper(wx.Frame):
         #--- Update Paper Grid ---#
         p = Paper(self.db)
         a = Author(self.db)
-        papers = p.All()
         authors = a.All()
-        self.GetParent().indexPaper(papers)
         self.GetParent().indexAuthor(authors)
+
+        row_len = self.GetParent().row
+        self.GetParent().paper_grid.SetCellValue(row_len, 0, paper[1])
+        if(paper[2] != None):
+            self.GetParent().paper_grid.SetCellValue(row_len, 1, str(paper[2]))  # Year
+        authors = ""
+        clfs = ""
+        affs = ""
+        if(p.authors(paper[0]) != None or p.authors(paper[0]) != []):
+            for author in p.authors(paper[0]):
+                authors += author[1] + "; "
+            self.GetParent().paper_grid.SetCellValue(row_len, 2, authors)  # Author
+        if(p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
+            for clf in p.classifications(paper[0]):
+                clfs += clf[1] + "; "
+        self.GetParent().paper_grid.SetCellValue(row_len, 3, clfs)  # Classification
+        if(p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
+            for aff in p.affiliations(paper[0]):
+                affs += aff[1] + "; "
+        self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
 
     def attachClf(self, event):  # wxGlade: EditPaper.<event_handler>
         # event.Skip()
@@ -663,7 +702,7 @@ class EditAuthor(wx.Frame):
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((400, 300))
+        self.SetSize((400, 396))
         self.SetTitle("rpos : Edit Author")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -697,7 +736,7 @@ class EditAuthor(wx.Frame):
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
 
-        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_author[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_author[2])
@@ -728,6 +767,7 @@ class EditAuthor(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.editAuthor, self.edit_btn)
         # end wxGlade
@@ -790,7 +830,7 @@ class RegisterClassification(wx.Frame):
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
 
-        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
 
@@ -828,6 +868,7 @@ class RegisterClassification(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.createClassification, self.create_btn)
         # end wxGlade
@@ -866,7 +907,7 @@ class EditClassification(wx.Frame):
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((400, 300))
+        self.SetSize((400, 426))
         self.SetTitle("rpos : Edit Classification")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -900,7 +941,7 @@ class EditClassification(wx.Frame):
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
 
-        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_clf[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_clf[2])
@@ -944,6 +985,7 @@ class EditClassification(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.editClassification, self.edit_btn)
         # end wxGlade
@@ -1014,6 +1056,7 @@ class AttachClassification(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.attachClf_btn)
         # end wxGlade
@@ -1079,6 +1122,7 @@ class RegisterAffiliation(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
         self.db = args[2]
         self.affs_id = []
 
@@ -1133,6 +1177,7 @@ class AttachAffiliation(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.attachClf_btn)
         # end wxGlade
@@ -1205,9 +1250,11 @@ class WelcomePage(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.selectedDB, self.selectDB_btn)
         self.Bind(wx.EVT_BUTTON, self.createNewDB, self.createDB_btn)
+        self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         # end wxGlade
 
     def selectedDB(self, event):  # wxGlade: WelcomePage.<event_handler>
@@ -1227,6 +1274,9 @@ class WelcomePage(wx.Frame):
         self.Close()
         self.CreateDB = CreateDB(None, wx.ID_ANY, "")
         self.CreateDB.Show()
+
+    def exitProgram(self, event):  # wxGlade: WelcomePage.<event_handler>
+        self.Destroy()
 # end of class WelcomePage
 
 
@@ -1260,13 +1310,13 @@ class CreateDB(wx.Frame):
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
+        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.createDB, self.createDB_btn)
+        self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         # end wxGlade
 
     def createDB(self, event):  # wxGlade: CreateDB.<event_handler>
-        # print("Event handler 'createDB' not implemented!")
-        # event.Skip()
         db_name = self.newDBname_txt.GetValue()
         if(db_name == "" or db_name == None):
             wx.MessageBox("ファイル名を入力してください")
@@ -1276,10 +1326,14 @@ class CreateDB(wx.Frame):
             wx.MessageBox("すでに存在するデータベースです")
         else:
             createAllTables("./resource/db/" + db_name)
-            os.mkdir('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0])
+            if(not(os.path.exists('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0]))):
+                os.mkdir('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0])
             self.Close()
-            self.RposMain = RposMain(None, wx.ID_ANY, "")
+            self.RposMain = RposMain(None, wx.ID_ANY, "./resource/db/" + db_name)
             self.RposMain.Show()
+
+    def exitProgram(self, event):  # wxGlade: CreateDB.<event_handler>
+        self.Destroy()
 # end of class CreateDB
 
 
@@ -1503,6 +1557,7 @@ class RposMain(wx.Frame):
         self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.aGrid_leftClick, self.author_grid)
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_RIGHT_CLICK, self.afGrid_rightClick, self.affiliation_grid)
         self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.afGrid_leftClick, self.affiliation_grid)
+        self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         # end wxGlade
 
     ###--- Paper ---###
@@ -1791,8 +1846,8 @@ class RposMain(wx.Frame):
     def pGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
         # event.Skip()
         #--- Extract selected Paper ---#
-        row = event.GetRow()
-        selected_paper_title = self.paper_grid.GetCellValue(row, 0)
+        self.row = event.GetRow()
+        selected_paper_title = self.paper_grid.GetCellValue(self.row, 0)
         p = Paper(self.db)
         selected_papers = p.where(title=selected_paper_title)
         self.selected_paper = selected_papers[0]
@@ -1981,6 +2036,9 @@ class RposMain(wx.Frame):
                 self.paper_grid.SetColLabelValue(0, "Title")
                 self.pgrid_title_state = 0
         self.narrowPaper(event)
+
+    def exitProgram(self, event):  # wxGlade: RposMain.<event_handler>
+        self.Destroy()
 # end of class RposMain
 
 
