@@ -289,14 +289,20 @@ class Author():
         now = datetime.datetime.now()
         date = now.strftime("%Y-%m-%d %H:%M:%S")
         if(name != "" and name != None):
-            self.c.execute(
-                "INSERT INTO Authors(name, description, affiliation_id, created_at, updated_at) SELECT ?, ?, ?, ?, ? where NOT EXISTS (select 1 from Authors where name=?)",
-                (name, description, affiliation_id, date, date, name))
-            self.conn.commit()
             self.c.execute("SELECT * from Authors WHERE name=?", (name,))
-            return self.c.fetchone()
+            author = self.c.fetchone()
+            if(author == None):
+                self.c.execute(
+                    "INSERT INTO Authors(name, description, affiliation_id, created_at, updated_at) SELECT ?, ?, ?, ?, ?",
+                    (name, description, affiliation_id, date, date)
+                )
+                self.conn.commit()
+                self.c.execute("SELECT * from Authors WHERE name=?", (name,))
+                return 0, self.c.fetchone()
+            else:
+                return 1, author
         else:
-            return 0
+            return 0, 0
 
     def update(self, id, request):
         """[summary]
@@ -362,7 +368,10 @@ class Author():
     def affiliation(self, id):
         author = self.find(id)
         af = Affiliation(self.db_name)
-        affiliation = af.find(author[3])
+        if(author[3] == None):
+            affiliation = None
+        else:
+            affiliation = af.find(author[3])
         return affiliation
 
     @ classmethod

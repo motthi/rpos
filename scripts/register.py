@@ -19,16 +19,22 @@ def registerByBibtex(db_name, bibtex, file, description=None, doi=None, isread=0
         inserted_paper = p.create(paper)
         paper_id = inserted_paper[0]
         authors_id = []
+        inserted_authors = []
         for author in authors:
-            inserted_author = a.create(author)
+            [flag, inserted_author] = a.create(author)
             authors_id.append(inserted_author[0])
+            if(flag == 0):
+                inserted_authors.append(inserted_author)
+            else:
+                # If return value is None, Author data already exist
+                pass
 
         #-- Register Relation --#
         for author_id in authors_id:
             a_management.create(paper_id, author_id)
-        return inserted_paper
+        return inserted_paper, inserted_authors
     except:
-        return 0
+        return 0, 0
 
 
 def updateByBibtex(db_name, id, bibtex, file, description=None, doi=None, isread=0):

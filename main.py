@@ -43,6 +43,9 @@ class RegisterPaper(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((680, 549))
         self.SetTitle("rpos : Register Paper")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -152,10 +155,10 @@ class RegisterPaper(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.selectFile, self.fileselect_btn)
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.clf_btn)
         self.Bind(wx.EVT_BUTTON, self.attachAff, self.aff_btn)
-        self.Bind(wx.EVT_BUTTON, self.addPaper, self.registerPaper_btn)
+        self.Bind(wx.EVT_BUTTON, self.registerPaper, self.registerPaper_btn)
         # end wxGlade
 
-    def addPaper(self, event):  # wxGlade: RegisterPaper.<event_handler>
+    def registerPaper(self, event):  # wxGlade: RegisterPaper.<event_handler>
         bibtex = self.bibtex_txt.GetValue()
         selected_file = self.fileBibtex_txt.GetValue()
         isread = self.isread_cmb.GetSelection()
@@ -167,7 +170,7 @@ class RegisterPaper(wx.Frame):
             filepath = './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
 
         #--- Register Paper---#
-        paper = registerByBibtex(
+        [paper, registered_authors] = registerByBibtex(
             self.db,
             bibtex,
             filepath,
@@ -197,7 +200,7 @@ class RegisterPaper(wx.Frame):
         for aff_id in self.affs_id:
             af_m.create(paper[0], aff_id)
 
-        #--- Update TreeCtrl ---#
+        #--- Update Paper Grid ---#
         p = Paper(self.db)
         a = Author(self.db)
         row_len = self.GetParent().paper_grid.GetNumberRows()
@@ -220,21 +223,32 @@ class RegisterPaper(wx.Frame):
             for aff in p.affiliations(paper[0]):
                 affs += aff[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
-        authors = a.All()
-        self.GetParent().indexAuthor(authors)
+        self.GetParent().paper_grid.SetCellValue(row_len, 5, paper[8])
+        self.GetParent().paper_grid.SetCellValue(row_len, 6, paper[9])
+
+        #--- Update Paper Grid ---#
+        for registered_author in registered_authors:
+            row_len = self.GetParent().author_grid.GetNumberRows()
+            self.GetParent().author_grid.AppendRows()
+            self.GetParent().author_grid.SetCellValue(row_len, 0, registered_author[1])
+            aff = a.affiliation(author[0])
+            if(aff != None):
+                self.GetParent().author_grid.SetCellValue(row_len, 1, aff[1])
+            papers = a.papers(author[0])
+            self.GetParent().author_grid.SetCellValue(row_len, 2, str(len(papers)))
 
     def selectFile(self, event):  # wxGlade: RegisterPaper.<event_handler>
-        # event.Skip()
+
         self.filedialog.ShowModal()
         self.fileBibtex_txt.SetValue(self.filedialog.GetPath())
 
     def attachClf(self, event):  # wxGlade: RegisterPaper.<event_handler>
-        # event.Skip()
+
         self.AttachClf = AttachClassification(self, wx.ID_ANY, self.db)
         self.AttachClf.Show()
 
     def attachAff(self, event):  # wxGlade: RegisterPaper.<event_handler>
-        # event.Skip()
+
         self.AttachAff = AttachAffiliation(self, wx.ID_ANY, self.db)
         self.AttachAff.Show()
 
@@ -264,6 +278,9 @@ class ShowPaper(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((677, 559))
         self.SetTitle("rpos : Show Paper")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -310,21 +327,6 @@ class ShowPaper(wx.Frame):
             names += author[1] + "; "
         author_show_lbl.SetLabel(names)
         grid_sizer_1.Add(author_show_lbl, 0, wx.ALL, 2)
-
-        # author label
-        # 改行を用いた表示がうまくいかないため，べた書き
-        """
-        p = Paper(self.db)
-        authors = p.authors(self.GetParent().selected_paper[0])
-        names = ""
-        for i, author in enumerate(authors):
-            names += author[1] + "; "
-            if((i + 1) % 4 == 0 and (i + 1) != len(authors)):
-                names += "\n"
-        author_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, names, style=wx.ST_NO_AUTORESIZE)
-        author_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        grid_sizer_1.Add(author_show_lbl, 0, wx.ALL, 2)
-        """
 
         doi_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
         doi_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -472,6 +474,9 @@ class EditPaper(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((623, 607))
         self.SetTitle("rpos : Edit Paper")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
         self.panel_1.SetScrollRate(10, 10)
@@ -567,7 +572,7 @@ class EditPaper(wx.Frame):
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.editPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
+        self.editPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"変更")
         self.editPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_1.Add(self.editPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
 
@@ -607,13 +612,7 @@ class EditPaper(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.editPaper, self.editPaper_btn)
         # end wxGlade
 
-    def selectFile(self, event):  # wxGlade: EditPaper.<event_handler>
-        # event.Skip()
-        self.filedialog.ShowModal()
-        self.fileBibtex_txt.SetValue(self.filedialog.GetPath())
-
     def editPaper(self, event):  # wxGlade: EditPaper.<event_handler>
-        # event.Skip()
         bibtex = self.bibtex_txt.GetValue()
         selected_file = self.fileBibtex_txt.GetValue()
         isread = self.isread_cmb.GetSelection()
@@ -709,13 +708,18 @@ class EditPaper(wx.Frame):
                 affs += aff[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
 
+    def selectFile(self, event):  # wxGlade: EditPaper.<event_handler>
+
+        self.filedialog.ShowModal()
+        self.fileBibtex_txt.SetValue(self.filedialog.GetPath())
+
     def attachClf(self, event):  # wxGlade: EditPaper.<event_handler>
-        # event.Skip()
+
         self.AttachClf = AttachClassification(self, wx.ID_ANY, self.db)
         self.AttachClf.Show()
 
     def attachAff(self, event):  # wxGlade: EditPaper.<event_handler>
-        # event.Skip()
+
         self.AttachAff = AttachAffiliation(self, wx.ID_ANY, self.db)
         self.AttachAff.Show()
 
@@ -738,6 +742,123 @@ class EditPaper(wx.Frame):
 
 
 ###------ Author ------###
+class ShowAuthor(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: ShowAuthor.__init__
+        self.db = args[2]
+        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.SetSize((400, 351))
+        self.SetTitle("frame")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
+
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_4, 1, wx.ALL | wx.EXPAND, 2)
+
+        grid_sizer_1 = wx.FlexGridSizer(3, 2, 0, 0)
+
+        name_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Name")
+        name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(name_lbl, 0, wx.ALL, 2)
+
+        name_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        name_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        name_show_lbl.Wrap(400)
+        name_show_lbl.SetLabel(self.GetParent().selected_author[1])
+        grid_sizer_1.Add(name_show_lbl, 0, wx.ALL, 2)
+
+        affiliation_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Affiliation")
+        affiliation_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(affiliation_lbl, 0, wx.ALL, 2)
+
+        affiliation_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        affiliation_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        a = Author(self.db)
+        aff = a.affiliation(self.GetParent().selected_author[0])
+        if(aff != None):
+            affiliation_show_lbl.SetLabel(aff[1])
+        grid_sizer_1.Add(affiliation_show_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+
+        papernum_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Number of Papers")
+        papernum_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(papernum_lbl, 0, wx.ALL, 2)
+
+        papernum_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        papernum_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        papernum_show_lbl.Wrap(400)
+        papers = a.papers(self.GetParent().selected_author[0])
+        papernum_show_lbl.SetLabel(str(len(papers)))
+        grid_sizer_1.Add(papernum_show_lbl, 0, wx.ALL, 2)
+
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+        sizer_1.Add(sizer_4, 3, wx.ALL | wx.EXPAND, 2)
+
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
+        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
+
+        self.panel_3 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_3.SetScrollRate(10, 10)
+        sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
+
+        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+
+        desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
+        desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        if(self.GetParent().selected_author[2] != None):
+            desc_show_lbl.SetLabel(self.GetParent().selected_author[2])
+        sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
+
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(sizer_11, 0, wx.ALIGN_RIGHT, 0)
+
+        self.narrowAuthor_btn = wx.Button(self.panel_1, wx.ID_ANY, "Narrow")
+        self.narrowAuthor_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.narrowAuthor_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+
+        self.editAuthor_btn = wx.Button(self.panel_1, wx.ID_ANY, "Edit")
+        self.editAuthor_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.editAuthor_btn, 0, wx.ALL, 7)
+
+        self.close_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
+        self.close_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.close_btn, 0, wx.ALL, 7)
+
+        self.panel_3.SetSizer(sizer_2)
+
+        self.panel_4.SetSizer(grid_sizer_1)
+
+        self.panel_1.SetSizer(sizer_1)
+
+        self.Layout()
+        self.Centre()
+
+        self.Bind(wx.EVT_BUTTON, self.narrowAuthor, self.narrowAuthor_btn)
+        self.Bind(wx.EVT_BUTTON, self.editAuthor, self.editAuthor_btn)
+        self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        # end wxGlade
+
+    def narrowAuthor(self, event):  # wxGlade: ShowAuthor.<event_handler>
+        self.GetParent().narAuthor_txtCtrl.SetValue(self.GetParent().selected_author[1])
+        self.GetParent().narrowPaper(event)
+        self.GetParent().notebook.SetSelection(0)
+
+    def editAuthor(self, event):  # wxGlade: ShowAuthor.<event_handler>
+        self.Close()
+        editAuthor = EditAuthor(self.GetParent(), wx.ID_ANY, self.db)
+        editAuthor.Show()
+
+    def closeWindow(self, event):  # wxGlade: ShowAuthor.<event_handler>
+        self.Close()
+# end of class ShowAuthor
+
+
 class EditAuthor(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: EditAuthor.__init__
@@ -746,6 +867,9 @@ class EditAuthor(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 396))
         self.SetTitle("rpos : Edit Author")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -815,7 +939,6 @@ class EditAuthor(wx.Frame):
         # end wxGlade
 
     def editAuthor(self, event):  # wxGlade: EditAuthor.<event_handler>
-        # event.Skip()
         a = Author(self.db)
         af = Affiliation(self.db)
 
@@ -842,6 +965,9 @@ class RegisterClassification(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 397))
         self.SetTitle("rpos : Register Classification")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -916,7 +1042,6 @@ class RegisterClassification(wx.Frame):
         # end wxGlade
 
     def createClassification(self, event):  # wxGlade: RegisterClassification.<event_handler>
-        # event.Skip()
         #--- Register New Classification ---#
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
@@ -951,6 +1076,9 @@ class EditClassification(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 426))
         self.SetTitle("rpos : Edit Classification")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -1035,7 +1163,7 @@ class EditClassification(wx.Frame):
         # end wxGlade
 
     def editClassification(self, event):  # wxGlade: EditClassification.<event_handler>
-        # event.Skip()
+
         #--- Register New Classification ---#
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
@@ -1074,6 +1202,9 @@ class AttachClassification(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((285, 585))
         self.SetTitle("rpos : Classification List")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -1106,7 +1237,7 @@ class AttachClassification(wx.Frame):
         # end wxGlade
 
     def attachClf(self, event):  # wxGlade: AttachClassification.<event_handler>
-        # event.Skip()
+
         self.GetParent().clfs_id = self.listctrl.checkedItem
         self.Close()
         self.GetParent().indexClassifications()
@@ -1121,6 +1252,9 @@ class RegisterAffiliation(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 300))
         self.SetTitle("rpos : Register Affiliation")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -1159,9 +1293,9 @@ class RegisterAffiliation(wx.Frame):
         self.attribute_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         sizer_3.Add(self.attribute_txt, 12, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.addPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
-        self.addPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_1.Add(self.addPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
+        self.registerPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
+        self.registerPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_1.Add(self.registerPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -1170,11 +1304,11 @@ class RegisterAffiliation(wx.Frame):
         self.db = args[2]
         self.affs_id = []
 
-        self.Bind(wx.EVT_BUTTON, self.registerAffiliation, self.addPaper_btn)
+        self.Bind(wx.EVT_BUTTON, self.registerAffiliation, self.registerPaper_btn)
         # end wxGlade
 
     def registerAffiliation(self, event):  # wxGlade: RegisterAffiliation.<event_handler>
-        # event.Skip()
+
         name = self.name_txt.GetValue()
         description = self.description_txt.GetValue()
         attribute = self.attribute_txt.GetValue()
@@ -1195,6 +1329,9 @@ class AttachAffiliation(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 300))
         self.SetTitle("rpos : Affiliation List")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -1227,7 +1364,7 @@ class AttachAffiliation(wx.Frame):
         # end wxGlade
 
     def attachClf(self, event):  # wxGlade: AttachAffiliation.<event_handler>
-        # event.Skip()
+
         self.GetParent().affs_id = self.listctrl.checkedItem
         self.Close()
         self.GetParent().showAffiliations()
@@ -1242,6 +1379,9 @@ class WelcomePage(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((600, 400))
         self.SetTitle("rpos : Welcome Page")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
@@ -1302,8 +1442,6 @@ class WelcomePage(wx.Frame):
         # end wxGlade
 
     def selectedDB(self, event):  # wxGlade: WelcomePage.<event_handler>
-        # print("Event handler 'selectedDB' not implemented!")
-        # event.Skip()
         if(self.selectDB_dbx.GetSelection() == -1):
             wx.MessageBox("データベースを選択してください")
             return
@@ -1313,8 +1451,6 @@ class WelcomePage(wx.Frame):
         self.RposMain.Show()
 
     def createNewDB(self, event):  # wxGlade: WelcomePage.<event_handler>
-        # print("Event handler 'createNewDB' not implemented!")
-        # event.Skip()
         self.Close()
         self.CreateDB = CreateDB(None, wx.ID_ANY, "")
         self.CreateDB.Show()
@@ -1331,6 +1467,9 @@ class CreateDB(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((515, 157))
         self.SetTitle("rpos : Creat Database")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
         self.panel_1.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -1389,9 +1528,21 @@ class RposMain(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((1296, 696))
         self.SetTitle("rpos")
+        _icon = wx.NullIcon
+        _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
+        self.SetIcon(_icon)
+        self.SetBackgroundColour(wx.Colour(239, 247, 255))
 
         # Menu Bar
         self.rposmain_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, "Open", "")
+        self.Bind(wx.EVT_MENU, self.openDatabase, item)
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, "Close", "")
+        self.Bind(wx.EVT_MENU, self.closeDatabase, item)
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, "Exit", "")
+        self.Bind(wx.EVT_MENU, self.exitProgram, item)
+        self.rposmain_menubar.Append(wxglade_tmp_menu, "File")
         wxglade_tmp_menu = wx.Menu()
         item = wxglade_tmp_menu.Append(wx.ID_ANY, "Paper", "")
         self.Bind(wx.EVT_MENU, self.registerPaper, item)
@@ -1402,6 +1553,11 @@ class RposMain(wx.Frame):
         item = wxglade_tmp_menu.Append(wx.ID_ANY, "Affiliation", "")
         self.Bind(wx.EVT_MENU, self.registerAffiliation, item)
         self.rposmain_menubar.Append(wxglade_tmp_menu, "Register")
+        wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(wx.ID_ANY, "Backup", "")
+        wxglade_tmp_menu.Append(wx.ID_ANY, "Delete All Data", "")
+        wxglade_tmp_menu.Append(wx.ID_ANY, "Reset Database", "")
+        self.rposmain_menubar.Append(wxglade_tmp_menu, "Database")
         self.SetMenuBar(self.rposmain_menubar)
         # Menu Bar end
 
@@ -1490,17 +1646,15 @@ class RposMain(wx.Frame):
 
         self.narRead_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN)
         self.narRead_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        af = Affiliation(self.db)
-        affs = af.All()
-        for aff in affs:
-            self.narAff_cmb.Append(aff[1])
         sizer_16.Add(self.narRead_cmb, 0, wx.LEFT, 20)
 
         self.detailNarrowing_btn = wx.Button(self.panel_1, wx.ID_ANY, u"リセット")
+        self.detailNarrowing_btn.SetBackgroundColour(wx.Colour(217, 250, 255))
         self.detailNarrowing_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_11.Add(self.detailNarrowing_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
 
         self.clf_treectrl = wx.TreeCtrl(self.panel_1, wx.ID_ANY)
+        self.clf_treectrl.SetBackgroundColour(wx.Colour(255, 250, 239))
         self.clf_treectrl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         c = Classification(self.db)
         clfs = c.All('turn', 'ASC')
@@ -1508,16 +1662,20 @@ class RposMain(wx.Frame):
         grid_sizer_1.Add(self.clf_treectrl, 1, wx.ALL | wx.EXPAND, 3)
 
         self.notebook = wx.Notebook(self.panel_1, wx.ID_ANY)
-        grid_sizer_1.Add(self.notebook, 1, wx.EXPAND, 0)
+        self.notebook.SetBackgroundColour(wx.Colour(239, 247, 255))
+        grid_sizer_1.Add(self.notebook, 1, wx.ALL | wx.EXPAND, 2)
 
         self.papers_ntbk_pnl = wx.Panel(self.notebook, wx.ID_ANY)
+        self.papers_ntbk_pnl.SetBackgroundColour(wx.Colour(239, 247, 255))
         self.notebook.AddPage(self.papers_ntbk_pnl, "Papers")
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
 
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
-        self.paper_grid.CreateGrid(1, 5)
-        self.paper_grid.SetRowLabelSize(20)
+        self.paper_grid.CreateGrid(1, 7)
+        self.paper_grid.SetRowLabelSize(30)
+        self.paper_grid.EnableEditing(0)
+        self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.paper_grid.SetColLabelValue(0, "Title")
         self.paper_grid.SetColSize(0, 488)
         self.paper_grid.SetColLabelValue(1, "Year")
@@ -1527,22 +1685,30 @@ class RposMain(wx.Frame):
         self.paper_grid.SetColLabelValue(3, "Classification")
         self.paper_grid.SetColSize(3, 252)
         self.paper_grid.SetColLabelValue(4, "Affiliation")
-        self.paper_grid.SetColSize(4, 333)
+        self.paper_grid.SetColSize(4, 106)
+        self.paper_grid.SetColLabelValue(5, "Registered At")
+        self.paper_grid.SetColSize(5, 160)
+        self.paper_grid.SetColLabelValue(6, "Updated At")
+        self.paper_grid.SetColSize(6, 160)
         self.paper_grid.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         p = Paper(self.db)
         self.indexPaper(p.All())
         self.pgrid_title_state = 0
         self.pgrid_year_state = 0
+        self.pgrid_register_state = 0
+        self.pgrid_update_state = 0
         sizer_3.Add(self.paper_grid, 20, wx.ALL | wx.EXPAND, 1)
 
         self.authors_ntbk_pnl = wx.Panel(self.notebook, wx.ID_ANY)
+        self.authors_ntbk_pnl.SetBackgroundColour(wx.Colour(239, 247, 255))
         self.notebook.AddPage(self.authors_ntbk_pnl, "Authors")
 
         sizer_6 = wx.BoxSizer(wx.VERTICAL)
 
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
-        self.author_grid.SetRowLabelSize(20)
+        self.author_grid.SetRowLabelSize(30)
+        self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.author_grid.SetColLabelValue(0, "name")
         self.author_grid.SetColSize(0, 208)
         self.author_grid.SetColLabelValue(1, "affiliation")
@@ -1551,12 +1717,14 @@ class RposMain(wx.Frame):
         self.author_grid.SetColSize(2, 75)
         self.author_grid.SetColLabelValue(3, "description")
         self.author_grid.SetColSize(3, 431)
+        self.author_grid.SetBackgroundColour(wx.Colour(234, 255, 233))
         self.author_grid.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         a = Author(self.db)
         self.indexAuthor(a.All())
         sizer_6.Add(self.author_grid, 20, wx.ALL | wx.EXPAND, 1)
 
         self.affiliations_ntbk_pnl = wx.Panel(self.notebook, wx.ID_ANY)
+        self.affiliations_ntbk_pnl.SetBackgroundColour(wx.Colour(239, 247, 255))
         self.notebook.AddPage(self.affiliations_ntbk_pnl, "Affiliations")
 
         sizer_9 = wx.BoxSizer(wx.VERTICAL)
@@ -1564,14 +1732,16 @@ class RposMain(wx.Frame):
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
         self.affiliation_grid.SetRowLabelSize(20)
+        self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.affiliation_grid.SetColLabelValue(0, "name")
         self.affiliation_grid.SetColSize(0, 162)
         self.affiliation_grid.SetColLabelValue(1, "attribute")
         self.affiliation_grid.SetColSize(1, 211)
+        self.affiliation_grid.SetBackgroundColour(wx.Colour(234, 255, 233))
         self.affiliation_grid.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         af = Affiliation(self.db)
         self.indexAffiliation(af.All())
-        sizer_9.Add(self.affiliation_grid, 20, wx.ALL | wx.EXPAND, 1)
+        sizer_9.Add(self.affiliation_grid, 30, wx.ALL | wx.EXPAND, 1)
 
         self.affiliations_ntbk_pnl.SetSizer(sizer_9)
 
@@ -1634,9 +1804,10 @@ class RposMain(wx.Frame):
                 for aff in p.affiliations(paper[0]):
                     affs += aff[1] + "; "
             self.paper_grid.SetCellValue(i, 4, affs)  # Affiliationn
+            self.paper_grid.SetCellValue(i, 5, paper[8])
+            self.paper_grid.SetCellValue(i, 6, paper[9])
 
     def registerPaper(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
         self.RegisterPaper = RegisterPaper(self, wx.ID_ANY, self.db)
         self.RegisterPaper.Show()
 
@@ -1682,8 +1853,8 @@ class RposMain(wx.Frame):
         for aff_man in affs_man:
             af_m.deleteByID(aff_man[0])
 
-        papers = p.All()
-        self.indexPaper(papers)
+        #--- Update Paper Grid ---#
+        self.paper_grid.DeleteRows(self.row, 1)
 
     def paperFileOpen(self, event):
         filepath = self.selected_paper[3]
@@ -1716,21 +1887,32 @@ class RposMain(wx.Frame):
             if(narAff != ""):
                 papers = set(papers) & set(self.narrowAff(narAff))
             papers = list(papers)
+
+        #--- sort ---#
         if(self.pgrid_title_state == 1):
             papers = sorted(papers, key=lambda x: x[1], reverse=True)
         elif(self.pgrid_title_state == 2):
             papers = sorted(papers, key=lambda x: x[1], reverse=False)
-        if(self.pgrid_year_state == 1):
+        elif(self.pgrid_year_state == 1):
             papers = sorted(papers, key=lambda x: x[2], reverse=True)
         elif(self.pgrid_year_state == 2):
             papers = sorted(papers, key=lambda x: x[2], reverse=False)
+        elif(self.pgrid_register_state == 1):
+            papers = sorted(papers, key=lambda x: x[8], reverse=True)
+        elif(self.pgrid_register_state == 2):
+            papers = sorted(papers, key=lambda x: x[8], reverse=False)
+        elif(self.pgrid_update_state == 1):
+            papers = sorted(papers, key=lambda x: x[9], reverse=True)
+        elif(self.pgrid_update_state == 2):
+            papers = sorted(papers, key=lambda x: x[9], reverse=False)
         self.indexPaper(papers)
 
     ###--- Author --- ###
     def indexAuthor(self, authors):
+        if(self.author_grid.GetNumberRows() != 0):
+            self.author_grid.DeleteRows(0, self.author_grid.GetNumberRows(), True)
         if(authors == []):
             return
-        self.author_grid.DeleteRows(0, self.author_grid.GetNumberRows(), True)
         for i, author in enumerate(authors):
             a = Author(self.db)
             papers = a.papers(author[0])
@@ -1746,7 +1928,8 @@ class RposMain(wx.Frame):
         event.Skip()
 
     def showAuthor(self, event):
-        pass
+        self.showAuthor = ShowAuthor(self, wx.ID_ANY, self.db)
+        self.showAuthor.Show()
 
     def editAuthor(self, event):
         self.EditAuthor = EditAuthor(self, wx.ID_ANY, self.db)
@@ -1767,13 +1950,14 @@ class RposMain(wx.Frame):
         for author_man in authors_man:
             a_m.deleteByID(author_man[0])
 
+        #--- Update Grids ---#
         p = Paper(self.db)
         self.indexPaper(p.All())
-        self.indexAuthor(a.All())
+        self.author_grid.DeleteRows(self.row, 1)
 
     ###--- Classification ---###
     def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
+
         self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
         self.createClf.Show()
 
@@ -1798,7 +1982,7 @@ class RposMain(wx.Frame):
         self.editClf.Show()
 
     def deleteClassification(self, event):
-        msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
+        msg = wx.MessageBox(u'削除しますか', u'Classification Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
         if(msg == wx.NO):
             return
         c = Classification(self.db)
@@ -1864,7 +2048,7 @@ class RposMain(wx.Frame):
             self.affiliation_grid.SetCellValue(i, 1, affiliation[3])
 
     def registerAffiliation(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
+
         registeraffiliation = RegisterAffiliation(self, wx.ID_ANY, self.db)
         registeraffiliation.Show()
 
@@ -1889,8 +2073,21 @@ class RposMain(wx.Frame):
             af_m.deleteByID(aff_man[0])
 
     ###--- Event ---###
+    def pGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
+
+        self.selectedPaper = self.paper_grid.GetSelectedCells()
+        pass
+
+    def pGrid_dLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
+
+        row = event.GetRow()
+        selected_paper_title = self.paper_grid.GetCellValue(row, 0)
+        p = Paper(self.db)
+        selected_papers = p.where(title=selected_paper_title)
+        self.selected_paper = selected_papers[0]
+        self.paperFileOpen(event)
+
     def pGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
         #--- Extract selected Paper ---#
         self.row = event.GetRow()
         selected_paper_title = self.paper_grid.GetCellValue(self.row, 0)
@@ -1915,24 +2112,12 @@ class RposMain(wx.Frame):
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def pGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
-        self.selectedPaper = self.paper_grid.GetSelectedCells()
-        pass
-
-    def pGrid_dLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
-        row = event.GetRow()
-        selected_paper_title = self.paper_grid.GetCellValue(row, 0)
-        p = Paper(self.db)
-        selected_papers = p.where(title=selected_paper_title)
-        self.selected_paper = selected_papers[0]
-        self.paperFileOpen(event)
+    def aGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
+        event.Skip()
 
     def aGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
-        row = event.GetRow()
-        selected_author_name = self.author_grid.GetCellValue(row, 0)
+        self.row = event.GetRow()
+        selected_author_name = self.author_grid.GetCellValue(self.row, 0)
         a = Author(self.db)
         selected_authors = a.where(name=selected_author_name)
         self.selected_author = selected_authors[0]
@@ -1950,11 +2135,8 @@ class RposMain(wx.Frame):
         self.author_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def aGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        event.Skip()
-
     def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
+
         row = event.GetRow()
         selected_aff_name = self.affiliation_grid.GetCellValue(row, 0)
         af = Affiliation(self.db)
@@ -1978,7 +2160,6 @@ class RposMain(wx.Frame):
         event.Skip()
 
     def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
         c = Classification(self.db)
         selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
         if(selected_classification == []):
@@ -2003,6 +2184,79 @@ class RposMain(wx.Frame):
             self.Bind(wx.EVT_MENU, self.narrowClassification, popupNarrow)
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
+
+    def pgridLabelLeftClicked(self, event):  # wxGlade: RposMain.<event_handler>
+        """Sort Grid
+
+        Args:
+            event
+        """
+        if(event.GetCol() == 1):
+            self.pgrid_title_state = 0
+            self.pgrid_register_state = 0
+            self.pgrid_update_state = 0
+            self.paper_grid.SetColLabelValue(0, "Title")
+            self.paper_grid.SetColLabelValue(5, "Registered At")
+            self.paper_grid.SetColLabelValue(6, "Updated At")
+            if(self.pgrid_year_state == 0):
+                self.paper_grid.SetColLabelValue(1, "Year↓")
+                self.pgrid_year_state = 1
+            elif(self.pgrid_year_state == 1):
+                self.paper_grid.SetColLabelValue(1, "Year↑")
+                self.pgrid_year_state = 2
+            elif(self.pgrid_year_state == 2):
+                self.paper_grid.SetColLabelValue(1, "Year")
+                self.pgrid_year_state = 0
+        elif(event.GetCol() == 0):
+            self.pgrid_year_state = 0
+            self.pgrid_register_state = 0
+            self.paper_grid.SetColLabelValue(1, "Year")
+            self.paper_grid.SetColLabelValue(5, "Registered At")
+            if(self.pgrid_title_state == 0):
+                self.paper_grid.SetColLabelValue(0, "Title↓")
+                self.pgrid_title_state = 1
+            elif(self.pgrid_title_state == 1):
+                self.paper_grid.SetColLabelValue(0, "Title↑")
+                self.pgrid_title_state = 2
+            elif(self.pgrid_title_state == 2):
+                self.paper_grid.SetColLabelValue(0, "Title")
+                self.pgrid_title_state = 0
+        elif(event.GetCol() == 5):
+            self.pgrid_title_state = 0
+            self.pgrid_year_state = 0
+            self.pgrid_update_state = 0
+            self.paper_grid.SetColLabelValue(0, "Title")
+            self.paper_grid.SetColLabelValue(1, "Year")
+            self.paper_grid.SetColLabelValue(6, "Updated At")
+            if(self.pgrid_register_state == 0):
+                self.paper_grid.SetColLabelValue(5, "Registered At↓")
+                self.pgrid_register_state = 1
+            elif(self.pgrid_register_state == 1):
+                self.paper_grid.SetColLabelValue(5, "Registered At↑")
+                self.pgrid_register_state = 2
+            elif(self.pgrid_register_state == 2):
+                self.paper_grid.SetColLabelValue(5, "Registered At")
+                self.pgrid_register_state = 0
+        elif(event.GetCol() == 6):
+            self.pgrid_title_state = 0
+            self.pgrid_year_state = 0
+            self.pgrid_register_state = 0
+            self.paper_grid.SetColLabelValue(0, "Title")
+            self.paper_grid.SetColLabelValue(1, "Year")
+            self.paper_grid.SetColLabelValue(5, "Registered At")
+            if(self.pgrid_update_state == 0):
+                self.paper_grid.SetColLabelValue(6, "Updated At↓")
+                self.pgrid_update_state = 1
+            elif(self.pgrid_update_state == 1):
+                self.paper_grid.SetColLabelValue(6, "Updated At↑")
+                self.pgrid_update_state = 2
+            elif(self.pgrid_update_state == 2):
+                self.paper_grid.SetColLabelValue(6, "Updated At")
+                self.pgrid_update_state = 0
+        else:
+            return
+
+        self.narrowPaper(event)
 
     def narrowTitleAndRead(self, narTitle, narRead):
         p = Paper(self.db)
@@ -2036,7 +2290,6 @@ class RposMain(wx.Frame):
         return af.papers(narAff[0][0])
 
     def resetNarrowing(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
         self.narTitle_txtCtrl.SetValue("")
         self.narAuthor_txtCtrl.SetValue("")
         self.narClf_cmb.SetSelection(-1)
@@ -2045,41 +2298,17 @@ class RposMain(wx.Frame):
         p = Paper(self.db)
         self.indexPaper(p.All())
 
-    def pgridLabelLeftClicked(self, event):  # wxGlade: RposMain.<event_handler>
-        """Sort Grid
-
-        Args:
-            event
-        """
-        # event.Skip()
-        if(event.GetCol() == 1):
-            self.pgrid_title_state = 0
-            self.paper_grid.SetColLabelValue(0, "Title")
-            if(self.pgrid_year_state == 0):
-                self.paper_grid.SetColLabelValue(1, "Year↓")
-                self.pgrid_year_state = 1
-            elif(self.pgrid_year_state == 1):
-                self.paper_grid.SetColLabelValue(1, "Year↑")
-                self.pgrid_year_state = 2
-            elif(self.pgrid_year_state == 2):
-                self.paper_grid.SetColLabelValue(1, "Year")
-                self.pgrid_year_state = 0
-        elif(event.GetCol() == 0):
-            self.pgrid_year_state = 0
-            self.paper_grid.SetColLabelValue(1, "Year")
-            if(self.pgrid_title_state == 0):
-                self.paper_grid.SetColLabelValue(0, "Title↓")
-                self.pgrid_title_state = 1
-            elif(self.pgrid_title_state == 1):
-                self.paper_grid.SetColLabelValue(0, "Title↑")
-                self.pgrid_title_state = 2
-            elif(self.pgrid_title_state == 2):
-                self.paper_grid.SetColLabelValue(0, "Title")
-                self.pgrid_title_state = 0
-        self.narrowPaper(event)
-
     def exitProgram(self, event):  # wxGlade: RposMain.<event_handler>
         self.Destroy()
+
+    def openDatabase(self, event):  # wxGlade: RposMain.<event_handler>
+        welcomepage = WelcomePage(None, wx.ID_ANY, "")
+        welcomepage.Show()
+
+    def closeDatabase(self, event):  # wxGlade: RposMain.<event_handler>
+        self.Close()
+        welcomepage = WelcomePage(None, wx.ID_ANY, "")
+        welcomepage.Show()
 # end of class RposMain
 
 
