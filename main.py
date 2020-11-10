@@ -20,6 +20,7 @@ import wx.html
 import wx.xml
 import shutil
 import pyperclip
+import subprocess
 import wx.lib.mixins.listctrl as listmix
 from scripts import*
 # end wxGlade
@@ -174,6 +175,9 @@ class RegisterPaper(wx.Frame):
             doi=doi,
             isread=isread
         )
+        if(paper == 0):
+            wx.MessageBox(u'処理に失敗しました\n登録を中断しました', u'Paper Register Failed', wx.ICON_ERROR)
+            return
 
         #--- Copy File ---#
         if(os.path.isfile(selected_file)):
@@ -258,43 +262,58 @@ class ShowPaper(wx.Frame):
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((746, 559))
+        self.SetSize((677, 559))
         self.SetTitle("rpos : Show Paper")
 
-        self.panel_1 = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
-        self.panel_1.SetScrollRate(10, 10)
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
-        grid_sizer_1 = wx.FlexGridSizer(7, 2, 0, 0)
-        sizer_1.Add(grid_sizer_1, 1, wx.ALL | wx.EXPAND, 4)
+        self.panel_4 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_4.SetScrollRate(10, 10)
+        sizer_1.Add(self.panel_4, 1, wx.EXPAND, 0)
 
-        title_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Title")
+        grid_sizer_1 = wx.FlexGridSizer(7, 2, 0, 0)
+
+        title_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Title")
         title_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(title_lbl, 0, wx.ALL, 2)
 
-        title_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        title_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         title_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        title_show_lbl.Wrap(400)
         if(self.GetParent().selected_paper[1] != None):
             title_show_lbl.SetLabel(self.GetParent().selected_paper[1])
         grid_sizer_1.Add(title_show_lbl, 0, wx.ALL, 2)
 
-        year_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Year")
+        year_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Year")
         year_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(year_lbl, 0, wx.ALL, 2)
 
-        year_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        year_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         year_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[2] != None):
             year_show_lbl.SetLabel(str(self.GetParent().selected_paper[2]))
         grid_sizer_1.Add(year_show_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        author_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Author")
+        author_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Author")
         author_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(author_lbl, 0, wx.ALL, 2)
 
-        #author label
-        #改行を用いた表示がうまくいかないため，べた書き
+        author_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        author_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        author_show_lbl.Wrap(400)
+        p = Paper(self.db)
+        authors = p.authors(self.GetParent().selected_paper[0])
+        names = ""
+        for i, author in enumerate(authors):
+            names += author[1] + "; "
+        author_show_lbl.SetLabel(names)
+        grid_sizer_1.Add(author_show_lbl, 0, wx.ALL, 2)
+
+        # author label
+        # 改行を用いた表示がうまくいかないため，べた書き
+        """
         p = Paper(self.db)
         authors = p.authors(self.GetParent().selected_paper[0])
         names = ""
@@ -305,23 +324,24 @@ class ShowPaper(wx.Frame):
         author_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, names, style=wx.ST_NO_AUTORESIZE)
         author_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(author_show_lbl, 0, wx.ALL, 2)
+        """
 
-        doi_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
+        doi_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
         doi_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(doi_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.doi_show_link = wx.adv.HyperlinkCtrl(self.panel_1, wx.ID_ANY, "", "")
+        self.doi_show_link = wx.adv.HyperlinkCtrl(self.panel_4, wx.ID_ANY, "", "")
         self.doi_show_link.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[5] != None):
             self.doi_show_link.SetLabel(self.GetParent().selected_paper[5])
             self.doi_show_link.SetURL(self.GetParent().selected_paper[5])
         grid_sizer_1.Add(self.doi_show_link, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-        self.isread_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Is Read")
+        self.isread_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Is Read")
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        isread_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        isread_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         isread_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[7] == 0):
             isread_show_lbl.SetLabel("Not Yet")
@@ -329,11 +349,11 @@ class ShowPaper(wx.Frame):
             isread_show_lbl.SetLabel("Done")
         grid_sizer_1.Add(isread_show_lbl, 0, wx.ALL, 2)
 
-        self.clf_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Classification")
+        self.clf_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Classification")
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.clf_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        clf_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        clf_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         clf_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         clfs = p.classifications(self.GetParent().selected_paper[0])
         clf_name = ""
@@ -343,11 +363,11 @@ class ShowPaper(wx.Frame):
 
         grid_sizer_1.Add(clf_show_lbl, 0, wx.ALL, 2)
 
-        self.aff_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Affiliation")
+        self.aff_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Affiliation")
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.aff_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        aff_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        aff_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         aff_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         affs = p.affiliations(self.GetParent().selected_paper[0])
         aff_name = ""
@@ -364,13 +384,18 @@ class ShowPaper(wx.Frame):
 
         desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_4.Add(desc_lbl, 3, wx.ALL, 2)
+        sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
 
-        desc_show_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        self.panel_3 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
+
+        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+
+        desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             desc_show_lbl.SetLabel(self.GetParent().selected_paper[6])
-        sizer_4.Add(desc_show_lbl, 0, wx.ALL, 4)
+        sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_2.Add(sizer_10, 1, wx.EXPAND, 0)
@@ -385,7 +410,8 @@ class ShowPaper(wx.Frame):
         self.copyBibtex_btn = wx.Button(self.panel_1, wx.ID_ANY, "Copy Bibtex")
         sizer_6.Add(self.copyBibtex_btn, 0, wx.ALL, 2)
 
-        self.panel_2 = wx.Panel(self.panel_1, wx.ID_ANY)
+        self.panel_2 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_2.SetScrollRate(10, 10)
         sizer_10.Add(self.panel_2, 1, wx.EXPAND, 0)
 
         sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
@@ -412,7 +438,9 @@ class ShowPaper(wx.Frame):
 
         self.panel_2.SetSizer(sizer_12)
 
-        grid_sizer_1.AddGrowableCol(1)
+        self.panel_3.SetSizer(sizer_2)
+
+        self.panel_4.SetSizer(grid_sizer_1)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -442,108 +470,113 @@ class EditPaper(wx.Frame):
         # begin wxGlade: EditPaper.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((623, 625))
+        self.SetSize((623, 607))
         self.SetTitle("rpos : Edit Paper")
 
-        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+        self.panel_1 = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_1.SetScrollRate(10, 10)
 
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
-        sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
+        self.panel_2 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_2, 0, wx.EXPAND, 0)
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_10, 4, wx.EXPAND, 0)
 
-        label_1 = wx.StaticText(self.panel_1, wx.ID_ANY, "BibTex")
+        label_1 = wx.StaticText(self.panel_2, wx.ID_ANY, "BibTex")
         label_1.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_10.Add(label_1, 0, wx.ALL, 3)
 
-        self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.bibtex_txt = wx.TextCtrl(self.panel_2, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
+        self.bibtex_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[4] != None):
             self.bibtex_txt.SetValue(self.GetParent().selected_paper[4])
         sizer_10.Add(self.bibtex_txt, 1, wx.ALL | wx.EXPAND, 2)
 
+        self.panel_3 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_3, 0, wx.ALL | wx.EXPAND, 0)
+
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
 
-        description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
+        description_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, u"詳細")
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_4.Add(description_lbl, 0, wx.ALL, 2)
+        sizer_4.Add(description_lbl, 0, wx.ALL, 3)
 
-        self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
-        self.description_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.description_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.description_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             self.description_txt.SetValue(self.GetParent().selected_paper[6])
         sizer_4.Add(self.description_txt, 1, wx.ALL | wx.EXPAND, 2)
 
-        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_11, 1, wx.EXPAND, 0)
+        self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_4, 0, wx.EXPAND, 0)
 
-        fileBibtex_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"ファイル", style=wx.ALIGN_CENTER_HORIZONTAL)
+        grid_sizer_1 = wx.FlexGridSizer(5, 2, 2, 0)
+
+        fileBibtex_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, u"ファイル", style=wx.ALIGN_CENTER_HORIZONTAL)
         fileBibtex_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_11.Add(fileBibtex_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(fileBibtex_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.fileBibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+        grid_sizer_1.Add(sizer_11, 0, wx.EXPAND, 0)
+
+        self.fileBibtex_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.fileBibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[3] != None):
             self.fileBibtex_txt.SetValue(self.GetParent().selected_paper[3])
         sizer_11.Add(self.fileBibtex_txt, 13, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.fileselect_btn = wx.Button(self.panel_1, wx.ID_ANY, u"変更\n")
-        self.fileselect_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.fileselect_btn = wx.Button(self.panel_4, wx.ID_ANY, u"変更\n")
+        self.fileselect_btn.SetMinSize((68, 25))
+        self.fileselect_btn.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_11.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.SHAPED, 1)
 
-        sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_12, 1, wx.EXPAND, 0)
-
-        doi_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
+        doi_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
         doi_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_12.Add(doi_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(doi_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.doi_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.doi_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.doi_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[5] != None):
             self.doi_txt.SetValue(self.GetParent().selected_paper[5])
-        sizer_12.Add(self.doi_txt, 16, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.doi_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_5, 1, wx.EXPAND, 0)
-
-        self.isread_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"調査")
+        self.isread_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, u"調査")
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.isread_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[u"未調査", u"調査済"], style=wx.CB_DROPDOWN)
+        self.isread_cmb = wx.ComboBox(self.panel_4, wx.ID_ANY, choices=[u"未調査", u"調査済"], style=wx.CB_DROPDOWN)
+        self.isread_cmb.SetMinSize((80, 27))
         self.isread_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.isread_cmb.SetSelection(self.GetParent().selected_paper[7])
-        sizer_5.Add(self.isread_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.isread_cmb, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-
-        self.clf_btn = wx.Button(self.panel_1, wx.ID_ANY, u"分類追加")
+        self.clf_btn = wx.Button(self.panel_4, wx.ID_ANY, u"分類追加")
         self.clf_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.clf_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        self.clf_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        grid_sizer_1.Add(self.clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_7, 1, wx.EXPAND, 0)
-
-        self.aff_btn = wx.Button(self.panel_1, wx.ID_ANY, u"所属追加")
+        self.aff_btn = wx.Button(self.panel_4, wx.ID_ANY, u"所属追加")
         self.aff_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_7.Add(self.aff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.aff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.aff_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        self.aff_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_7.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        grid_sizer_1.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.editPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
         self.editPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_1.Add(self.editPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
+
+        grid_sizer_1.AddGrowableCol(1)
+        self.panel_4.SetSizer(grid_sizer_1)
+
+        self.panel_3.SetSizer(sizer_4)
+
+        self.panel_2.SetSizer(sizer_10)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -600,7 +633,16 @@ class EditPaper(wx.Frame):
             os.path.isfile(self.GetParent().selected_paper[3])  # 変更前のファイルが存在する
         ):
             try:
-                os.remove(self.GetParent().selected_paper[3])
+                msg = wx.MessageBox(
+                    u'以下のファイルが削除されます\n' + self.GetParent().selected_paper[3] + '\n削除しますか',
+                    u'Paper Delete',
+                    wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING
+                )
+                if(msg == wx.YES):
+                    os.remove(self.GetParent().selected_paper[3])
+                else:
+                    wx.MessageBox(u'ファイルを削除できません\n更新処理を中断しました', u'Could not Delete', wx.ICON_ERROR)
+                    return
             except PermissionError:
                 wx.MessageBox(u'ファイルを削除できません\n更新処理を中断しました', u'Could not Delete', wx.ICON_ERROR)
                 return
@@ -757,7 +799,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i+1)
+                self.affiliation_cmb.SetSelection(i + 1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, u"保存")
@@ -973,9 +1015,11 @@ class EditClassification(wx.Frame):
         parent_clf = c.parentclasses(self.GetParent().selected_clf[0])
         self.parent_cmb.Append("")
         for i, clf in enumerate(clfs):
+            if(self.GetParent().selected_clf[0] == clf[0]):
+                continue
             self.parent_cmb.Append(clf[1])
             if(parent_clf != [] and clf[0] == parent_clf[0][0]):
-                self.parent_cmb.SetSelection(i+1)
+                self.parent_cmb.SetSelection(i + 1)
         sizer_6.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, u"保存")
@@ -1368,7 +1412,7 @@ class RposMain(wx.Frame):
 
         showLabelIndex_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"ラベル一覧")
         showLabelIndex_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        grid_sizer_1.Add(showLabelIndex_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 1)
+        grid_sizer_1.Add(showLabelIndex_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
         grid_sizer_1.Add(sizer_10, 1, wx.EXPAND, 0)
@@ -1461,7 +1505,7 @@ class RposMain(wx.Frame):
         c = Classification(self.db)
         clfs = c.All('turn', 'ASC')
         self.indexClassifications(c, clfs)
-        grid_sizer_1.Add(self.clf_treectrl, 1, wx.EXPAND, 0)
+        grid_sizer_1.Add(self.clf_treectrl, 1, wx.ALL | wx.EXPAND, 3)
 
         self.notebook = wx.Notebook(self.panel_1, wx.ID_ANY)
         grid_sizer_1.Add(self.notebook, 1, wx.EXPAND, 0)
@@ -1605,7 +1649,7 @@ class RposMain(wx.Frame):
         self.EditPaper.Show()
 
     def deletePaper(self, event):
-        msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
+        msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING)
         if(msg == wx.NO):
             return
 
@@ -1643,14 +1687,18 @@ class RposMain(wx.Frame):
 
     def paperFileOpen(self, event):
         filepath = self.selected_paper[3]
-        if(os.path.isfile(filepath)):
-            os.system('"' + filepath + '"')
+        if(filepath != None and os.path.isfile(filepath)):
+            if(" " in filepath):
+                os.system('"' + filepath + '"')
+            else:
+                subprocess.Popen(['start', filepath], shell=True)
+        else:
+            msg = wx.MessageBox(u'ファイルが存在しません', u'File Not Found', wx.ICON_ERROR)
 
     def paperCopyBibtex(self, event):
         pyperclip.copy(self.selected_paper[4])
 
     def narrowPaper(self, event):  # wxGlade: RposMain.<event_handler>
-        # event.Skip()
         narTitle = self.narTitle_txtCtrl.GetValue()
         narAuthor = self.narAuthor_txtCtrl.GetValue()
         narClf = self.narClf_cmb.GetValue()
@@ -1659,16 +1707,14 @@ class RposMain(wx.Frame):
         p = Paper(self.db)
         papers = p.All()
         if(narTitle != "" or narAuthor != "" or narClf != "" or narAff != "" or narRead != ""):
-            if(narTitle != ""):
-                papers = set(papers) & set(self.narrowTitle(narTitle))
+            if(narTitle != "" or narRead != ""):
+                papers = set(papers) & set(self.narrowTitleAndRead(narTitle, narRead))
             if(narAuthor != ""):
                 papers = set(papers) & set(self.narrowAuthor(narAuthor))
             if(narClf != ""):
                 papers = set(papers) & set(self.narrowClf(narClf))
             if(narAff != ""):
                 papers = set(papers) & set(self.narrowAff(narAff))
-            if(narRead != ""):
-                papers = set(papers) & set(self.narrowRead(narRead))
             papers = list(papers)
         if(self.pgrid_title_state == 1):
             papers = sorted(papers, key=lambda x: x[1], reverse=True)
@@ -1880,9 +1926,8 @@ class RposMain(wx.Frame):
         selected_paper_title = self.paper_grid.GetCellValue(row, 0)
         p = Paper(self.db)
         selected_papers = p.where(title=selected_paper_title)
-        filepath = selected_papers[0][3]
-        if(os.path.isfile(filepath)):
-            os.system('"' + filepath + '"')
+        self.selected_paper = selected_papers[0]
+        self.paperFileOpen(event)
 
     def aGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
         # event.Skip()
@@ -1906,7 +1951,6 @@ class RposMain(wx.Frame):
         menu.Destroy()
 
     def aGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        print("Event handler 'aGrid_leftClick' not implemented!")
         event.Skip()
 
     def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
@@ -1931,7 +1975,6 @@ class RposMain(wx.Frame):
         menu.Destroy()
 
     def afGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        print("Event handler 'afGrid_leftClick' not implemented!")
         event.Skip()
 
     def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
@@ -1961,9 +2004,15 @@ class RposMain(wx.Frame):
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def narrowTitle(self, narTitle):
+    def narrowTitleAndRead(self, narTitle, narRead):
         p = Paper(self.db)
-        return p.where(title=narTitle)
+        if(narRead == "Done"):
+            isread = 1
+        elif(narRead == "Not Yet"):
+            isread = 0
+        else:
+            isread = None
+        return p.where(title=narTitle, isread=isread)
 
     def narrowAuthor(self, narAuthor):
         a = Author(self.db)
@@ -1986,21 +2035,13 @@ class RposMain(wx.Frame):
         narAff = af.where(name=aff)
         return af.papers(narAff[0][0])
 
-    def narrowRead(self, read_cmb):
-        if(read_cmb == "Done"):
-            isread = 1
-        else:
-            isread = 0
-        p = Paper(self.db)
-        narRead = p.where(isread=isread)
-        return narRead
-
     def resetNarrowing(self, event):  # wxGlade: RposMain.<event_handler>
         # event.Skip()
         self.narTitle_txtCtrl.SetValue("")
         self.narAuthor_txtCtrl.SetValue("")
         self.narClf_cmb.SetSelection(-1)
         self.narAff_cmb.SetSelection(-1)
+        self.narRead_cmb.SetSelection(-1)
         p = Paper(self.db)
         self.indexPaper(p.All())
 

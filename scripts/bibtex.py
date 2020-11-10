@@ -1,3 +1,4 @@
+from pybtex.plugin import find_plugin
 from pybtex.database import*
 from . import*
 
