@@ -61,8 +61,13 @@ def updateByBibtex(db_name, id, bibtex, file, description=None, doi=None, isread
             a_management.deleteByID(author_man[0])
         authors_id = []
         for author in authors:
-            inserted_author = a.create(author)
+            [flag, inserted_author] = a.create(author)
             authors_id.append(inserted_author[0])
+            if(flag == 0):
+                inserted_authors.append(inserted_author)
+            else:
+                # If return value is None, Author data already exist
+                pass
 
         #-- Register Relation --#
         for author_id in authors_id:

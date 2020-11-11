@@ -484,7 +484,7 @@ class EditPaper(wx.Frame):
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
         self.panel_2 = wx.Panel(self.panel_1, wx.ID_ANY)
-        sizer_1.Add(self.panel_2, 0, wx.EXPAND, 0)
+        sizer_1.Add(self.panel_2, 1, wx.EXPAND, 0)
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
 
@@ -496,10 +496,10 @@ class EditPaper(wx.Frame):
         self.bibtex_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[4] != None):
             self.bibtex_txt.SetValue(self.GetParent().selected_paper[4])
-        sizer_10.Add(self.bibtex_txt, 1, wx.ALL | wx.EXPAND, 2)
+        sizer_10.Add(self.bibtex_txt, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 2)
 
         self.panel_3 = wx.Panel(self.panel_1, wx.ID_ANY)
-        sizer_1.Add(self.panel_3, 0, wx.ALL | wx.EXPAND, 0)
+        sizer_1.Add(self.panel_3, 1, wx.ALL | wx.EXPAND, 0)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
 
@@ -511,7 +511,7 @@ class EditPaper(wx.Frame):
         self.description_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             self.description_txt.SetValue(self.GetParent().selected_paper[6])
-        sizer_4.Add(self.description_txt, 1, wx.ALL | wx.EXPAND, 2)
+        sizer_4.Add(self.description_txt, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 2)
 
         self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
         sizer_1.Add(self.panel_4, 0, wx.EXPAND, 0)
@@ -647,7 +647,7 @@ class EditPaper(wx.Frame):
                 return
 
         #--- Copy File ---#
-        if(not(os.path.isfile(new_filepath))):
+        if(new_filepath != "" and new_filepath != None and not(os.path.isfile(new_filepath))):
             shutil.copyfile(
                 selected_file,
                 './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
@@ -709,17 +709,14 @@ class EditPaper(wx.Frame):
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
 
     def selectFile(self, event):  # wxGlade: EditPaper.<event_handler>
-
         self.filedialog.ShowModal()
         self.fileBibtex_txt.SetValue(self.filedialog.GetPath())
 
     def attachClf(self, event):  # wxGlade: EditPaper.<event_handler>
-
         self.AttachClf = AttachClassification(self, wx.ID_ANY, self.db)
         self.AttachClf.Show()
 
     def attachAff(self, event):  # wxGlade: EditPaper.<event_handler>
-
         self.AttachAff = AttachAffiliation(self, wx.ID_ANY, self.db)
         self.AttachAff.Show()
 
@@ -944,13 +941,21 @@ class EditAuthor(wx.Frame):
 
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
+        if(desc == ""):
+            desc = None
         aff = self.affiliation_cmb.GetValue()
-        affs = af.where(name=aff[1])
+        affs = af.where(name=aff)
         aff_id = affs[0][0]
 
         author = Author.getDicFormat(name, desc, affs[0][0])
         a.update(self.GetParent().selected_author[0], author)
-        self.GetParent().indexAuthor(a.All())
+        aff = a.affiliation(self.GetParent().selected_author[0])
+        papers = a.papers(self.GetParent().selected_author[0])
+        row_len = self.GetParent().row
+        self.GetParent().author_grid.SetCellValue(row_len, 0, self.GetParent().selected_author[1])
+        self.GetParent().author_grid.SetCellValue(row_len, 1, aff[1])
+        self.GetParent().author_grid.SetCellValue(row_len, 2, str(len(papers)))
+        self.GetParent().author_grid.SetCellValue(row_len, 3, self.GetParent().selected_author[2] if(self.GetParent().selected_author[2] != None) else "")
         self.GetParent().resetNarrowing(event)
         self.Close()
 # end of class EditAuthor
@@ -1068,6 +1073,105 @@ class RegisterClassification(wx.Frame):
 # end of class RegisterClassification
 
 
+class ShowClassification(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: ShowClassification.__init__
+        self.db = args[2]
+        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.SetSize((400, 300))
+        self.SetTitle("rpos : Show Classification")
+
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_4, 1, wx.ALL | wx.EXPAND, 2)
+
+        grid_sizer_1 = wx.FlexGridSizer(2, 2, 0, 0)
+
+        name_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Name")
+        name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(name_lbl, 0, wx.ALL, 2)
+
+        name_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        name_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        name_show_lbl.Wrap(400)
+        name_show_lbl.SetLabel(self.GetParent().selected_clf[1])
+        grid_sizer_1.Add(name_show_lbl, 0, wx.ALL, 2)
+
+        turn_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Turn")
+        turn_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(turn_lbl, 0, wx.ALL, 2)
+
+        turn_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        turn_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        turn_show_lbl.Wrap(400)
+        turn_show_lbl.SetLabel(str(self.GetParent().selected_clf[3]))
+        grid_sizer_1.Add(turn_show_lbl, 0, wx.ALL, 2)
+
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+        sizer_1.Add(sizer_4, 3, wx.ALL | wx.EXPAND, 2)
+
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
+        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
+
+        self.panel_3 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_3.SetScrollRate(10, 10)
+        sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
+
+        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+
+        desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
+        desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        desc_show_lbl.SetLabel(self.GetParent().selected_clf[2] if(self.GetParent().selected_clf[2] != None) else "")
+        sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
+
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(sizer_11, 0, wx.ALIGN_RIGHT, 0)
+
+        self.narrowClf_btn = wx.Button(self.panel_1, wx.ID_ANY, "Narrow")
+        self.narrowClf_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.narrowClf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+
+        self.editAuthor_btn = wx.Button(self.panel_1, wx.ID_ANY, "Edit")
+        self.editAuthor_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.editAuthor_btn, 0, wx.ALL, 7)
+
+        self.close_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
+        self.close_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.close_btn, 0, wx.ALL, 7)
+
+        self.panel_3.SetSizer(sizer_2)
+
+        self.panel_4.SetSizer(grid_sizer_1)
+
+        self.panel_1.SetSizer(sizer_1)
+
+        self.Layout()
+
+        self.Bind(wx.EVT_BUTTON, self.narrowClf, self.narrowClf_btn)
+        self.Bind(wx.EVT_BUTTON, self.editClf, self.editAuthor_btn)
+        self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        # end wxGlade
+
+    def narrowClf(self, event):  # wxGlade: ShowClassification.<event_handler>
+        self.GetParent().narClf_cmb.SetString(self.GetParent().selected_clf[1])
+        self.GetParent().narrowPaper(event)
+        self.GetParent().notebook.SetSelection(0)
+
+    def editClf(self, event):  # wxGlade: ShowClassification.<event_handler>
+        self.Close()
+        editClf = EditClassification(self.GetParent(), wx.ID_ANY, self.db)
+        editClf.Show()
+
+    def closeWindow(self, event):  # wxGlade: ShowClassification.<event_handler>
+        self.Close()
+# end of class ShowClassification
+
+
 class EditClassification(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: EditClassification.__init__
@@ -1082,59 +1186,33 @@ class EditClassification(wx.Frame):
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
-        sizer_1 = wx.BoxSizer(wx.VERTICAL)
-
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
-        clf_edit_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"分類ラベル編集")
-        clf_edit_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(clf_edit_lbl, 0, wx.ALL, 4)
+        grid_sizer_1 = wx.FlexGridSizer(3, 2, 5, 5)
+        sizer_2.Add(grid_sizer_1, 1, wx.EXPAND, 0)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-
-        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"分類名")
+        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Name")
         name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_clf[1] != None):
             self.name_txt.SetValue(self.GetParent().selected_clf[1])
-        sizer_3.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
 
-        sizer_4 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
-
-        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
-        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
-
-        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
-        self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_clf[2] != None):
-            self.desc_txt.SetValue(self.GetParent().selected_clf[2])
-        sizer_4.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
-
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_5, 0, wx.EXPAND, 0)
-
-        sort_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"ソート番号")
+        sort_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Sort Num")
         sort_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(sort_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(sort_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.sort_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.sort_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.sort_txt.SetValue(str(self.GetParent().selected_clf[3]))
-        sizer_5.Add(self.sort_txt, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.sort_txt, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
 
-        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_6, 0, wx.ALL | wx.EXPAND, 2)
-
-        parent_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"親分類")
+        parent_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Parent")
         parent_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_6.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
         self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -1148,22 +1226,37 @@ class EditClassification(wx.Frame):
             self.parent_cmb.Append(clf[1])
             if(parent_clf != [] and clf[0] == parent_clf[0][0]):
                 self.parent_cmb.SetSelection(i + 1)
-        sizer_6.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, u"保存")
+        sizer_3 = wx.BoxSizer(wx.VERTICAL)
+        sizer_2.Add(sizer_3, 2, wx.EXPAND, 0)
+
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
+        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_3.Add(desc_lbl, 0, wx.ALL, 3)
+
+        self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        if(self.GetParent().selected_clf[2] != None):
+            self.desc_txt.SetValue(self.GetParent().selected_clf[2])
+        sizer_3.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
+
+        self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
         self.edit_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_2.Add(self.edit_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
 
-        self.panel_1.SetSizer(sizer_1)
+        grid_sizer_1.AddGrowableCol(1)
+
+        self.panel_1.SetSizer(sizer_2)
 
         self.Layout()
         self.Centre()
+        self.RegisterHotKey(1234, wx.MOD_CONTROL, ord('z'))
 
         self.Bind(wx.EVT_BUTTON, self.editClassification, self.edit_btn)
         # end wxGlade
 
     def editClassification(self, event):  # wxGlade: EditClassification.<event_handler>
-
         #--- Register New Classification ---#
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
@@ -1250,7 +1343,7 @@ class RegisterAffiliation(wx.Frame):
         # begin wxGlade: RegisterAffiliation.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((400, 300))
+        self.SetSize((400, 330))
         self.SetTitle("rpos : Register Affiliation")
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
@@ -1260,42 +1353,40 @@ class RegisterAffiliation(wx.Frame):
 
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
-        sizer_2 = wx.BoxSizer(wx.VERTICAL)
+        sizer_2 = wx.FlexGridSizer(2, 2, 5, 5)
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
-        sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_10, 1, wx.ALL | wx.EXPAND, 1)
-
-        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"名称")
+        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Name")
         name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_10.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        sizer_2.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
-        sizer_10.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_2.Add(self.name_txt, 1, wx.ALL | wx.EXPAND, 2)
+
+        self.attribute_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Attribute")
+        self.attribute_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_2.Add(self.attribute_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+
+        self.attribute_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.attribute_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_2.Add(self.attribute_txt, 1, wx.ALL | wx.EXPAND, 2)
 
         sizer_11 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2.Add(sizer_11, 5, wx.EXPAND, 0)
+        sizer_1.Add(sizer_11, 5, wx.EXPAND, 0)
 
-        description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
+        description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_11.Add(description_lbl, 0, wx.ALL, 3)
 
         self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         sizer_11.Add(self.description_txt, 12, wx.ALL | wx.EXPAND, 2)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
+        self.registerAff_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create")
+        self.registerAff_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_1.Add(self.registerAff_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
 
-        self.attribute_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"属性")
-        self.attribute_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.attribute_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
-
-        self.attribute_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
-        sizer_3.Add(self.attribute_txt, 12, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
-
-        self.registerPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
-        self.registerPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_1.Add(self.registerPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
+        sizer_2.AddGrowableCol(1)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -1304,21 +1395,211 @@ class RegisterAffiliation(wx.Frame):
         self.db = args[2]
         self.affs_id = []
 
-        self.Bind(wx.EVT_BUTTON, self.registerAffiliation, self.registerPaper_btn)
+        self.Bind(wx.EVT_BUTTON, self.registerAffiliation, self.registerAff_btn)
         # end wxGlade
 
     def registerAffiliation(self, event):  # wxGlade: RegisterAffiliation.<event_handler>
-
         name = self.name_txt.GetValue()
-        description = self.description_txt.GetValue()
-        attribute = self.attribute_txt.GetValue()
+        description = self.description_txt.GetValue() if(self.description_txt.GetValue() != None) else None
+        attribute = self.attribute_txt.GetValue() if(self.attribute_txt.GetValue() != None) else None
 
         af = Affiliation(self.db)
         affiliation = af.getDicFormat(name, description, attribute)
         af.create(affiliation)
-        self.GetParent().indexAffiliation(af.All())
         self.Close()
+        row_len = self.GetParent().affiliation_grid.GetNumberRows()
+        self.GetParent().affiliation_grid.AppendRows()
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 0, name)
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if(attribute != None) else "")
 # end of class RegisterAffiliation
+
+
+class ShowAffiliation(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: ShowAffiliation.__init__
+        self.db = args[2]
+        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.SetSize((400, 300))
+        self.SetTitle("rpos : Show Affiliation")
+
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_4, 1, wx.ALL | wx.EXPAND, 2)
+
+        grid_sizer_1 = wx.FlexGridSizer(2, 2, 0, 0)
+
+        name_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Name")
+        name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(name_lbl, 0, wx.ALL, 2)
+
+        name_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        name_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        name_show_lbl.Wrap(400)
+        name_show_lbl.SetLabel(self.GetParent().selected_aff[1])
+        grid_sizer_1.Add(name_show_lbl, 0, wx.ALL, 2)
+
+        attribute_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Attribute")
+        attribute_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(attribute_lbl, 0, wx.ALL, 2)
+
+        attribute_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
+        attribute_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        attribute_show_lbl.Wrap(400)
+        attribute_show_lbl.SetLabel(str(self.GetParent().selected_aff[3]) if(self.GetParent().selected_aff[3] != None) else "")
+        grid_sizer_1.Add(attribute_show_lbl, 0, wx.ALL, 2)
+
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+        sizer_1.Add(sizer_4, 3, wx.ALL | wx.EXPAND, 2)
+
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
+        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
+
+        self.panel_3 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_3.SetScrollRate(10, 10)
+        sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
+
+        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+
+        desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
+        desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        desc_show_lbl.SetLabel(self.GetParent().selected_aff[2] if(self.GetParent().selected_aff[2] != None) else "")
+        sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
+
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(sizer_11, 0, wx.ALIGN_RIGHT, 0)
+
+        self.narrowAff_btn = wx.Button(self.panel_1, wx.ID_ANY, "Narrow")
+        self.narrowAff_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.narrowAff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+
+        self.editAff_btn = wx.Button(self.panel_1, wx.ID_ANY, "Edit")
+        self.editAff_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.editAff_btn, 0, wx.ALL, 7)
+
+        self.close_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
+        self.close_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.close_btn, 0, wx.ALL, 7)
+
+        self.panel_3.SetSizer(sizer_2)
+
+        self.panel_4.SetSizer(grid_sizer_1)
+
+        self.panel_1.SetSizer(sizer_1)
+
+        self.Layout()
+
+        self.Bind(wx.EVT_BUTTON, self.narrowAff, self.narrowAff_btn)
+        self.Bind(wx.EVT_BUTTON, self.editAff, self.editAff_btn)
+        self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        # end wxGlade
+
+    def narrowAff(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+        print("Event handler 'narrowAff' not implemented!")
+        event.Skip()
+
+    def editAff(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+        self.Close()
+        editAff = EditAffiliation(self.GetParent(), wx.ID_ANY, self.db)
+        editAff.Show()
+
+    def closeWindow(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+        self.Close()
+# end of class ShowAffiliation
+
+
+class EditAffiliation(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: EditAffiliation.__init__
+        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.SetSize((400, 335))
+        self.SetTitle("rpos : Edit Affiliation")
+
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+        self.panel_4 = wx.Panel(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(self.panel_4, 1, wx.ALL | wx.EXPAND, 2)
+
+        grid_sizer_1 = wx.FlexGridSizer(2, 2, 5, 5)
+
+        name_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Name")
+        name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(name_lbl, 0, wx.ALL, 2)
+
+        self.name_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
+        self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.name_txt.SetValue(self.GetParent().selected_aff[1] if(self.GetParent().selected_aff[1]) else "")
+        grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+        attribute_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Attribute")
+        attribute_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(attribute_lbl, 0, wx.ALL, 2)
+
+        self.attribute_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
+        self.attribute_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.attribute_txt.SetValue(self.GetParent().selected_aff[3] if(self.GetParent().selected_aff[3]) else "")
+        grid_sizer_1.Add(self.attribute_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+        sizer_1.Add(sizer_4, 2, wx.ALL | wx.EXPAND, 3)
+
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
+        desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
+
+        self.panel_3 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_3.SetScrollRate(10, 10)
+        sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
+
+        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.desc_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.desc_txt.SetValue(self.GetParent().selected_aff[2] if(self.GetParent().selected_aff[2]) else "")
+        sizer_2.Add(self.desc_txt, 1, wx.EXPAND, 0)
+
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(sizer_11, 0, wx.ALIGN_RIGHT, 0)
+
+        self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
+        self.edit_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_11.Add(self.edit_btn, 0, wx.ALL, 7)
+
+        self.panel_3.SetSizer(sizer_2)
+
+        grid_sizer_1.AddGrowableRow(0)
+        grid_sizer_1.AddGrowableRow(1)
+        grid_sizer_1.AddGrowableCol(1)
+        self.panel_4.SetSizer(grid_sizer_1)
+
+        self.panel_1.SetSizer(sizer_1)
+
+        self.Layout()
+        self.Centre()
+        self.db = args[2]
+
+        self.Bind(wx.EVT_BUTTON, self.closeWindow, self.edit_btn)
+        # end wxGlade
+
+    def closeWindow(self, event):  # wxGlade: EditAffiliation.<event_handler>
+        name = self.name_txt.GetValue()
+        desc = self.desc_txt.GetValue() if(self.desc_txt.GetValue() != None) else None
+        attribute = self.attribute_txt.GetValue() if(self.attribute_txt.GetValue() != None) else None
+        af = Affiliation(self.db)
+        aff = af.getDicFormat(name, desc, attribute)
+        af.update(self.GetParent().selected_aff[0], aff)
+
+        self.Close()
+        row_len = self.GetParent().row
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 0, name)
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if(attribute != None) else "")
+# end of class EditAffiliation
 
 
 class AttachAffiliation(wx.Frame):
@@ -1674,6 +1955,7 @@ class RposMain(wx.Frame):
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.paper_grid.CreateGrid(1, 7)
         self.paper_grid.SetRowLabelSize(30)
+        self.paper_grid.SetColLabelSize(25)
         self.paper_grid.EnableEditing(0)
         self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.paper_grid.SetColLabelValue(0, "Title")
@@ -1708,6 +1990,8 @@ class RposMain(wx.Frame):
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
         self.author_grid.SetRowLabelSize(30)
+        self.author_grid.SetColLabelSize(25)
+        self.author_grid.EnableEditing(0)
         self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.author_grid.SetColLabelValue(0, "name")
         self.author_grid.SetColSize(0, 208)
@@ -1731,7 +2015,9 @@ class RposMain(wx.Frame):
 
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
-        self.affiliation_grid.SetRowLabelSize(20)
+        self.affiliation_grid.SetRowLabelSize(30)
+        self.affiliation_grid.SetColLabelSize(25)
+        self.affiliation_grid.EnableEditing(0)
         self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
         self.affiliation_grid.SetColLabelValue(0, "name")
         self.affiliation_grid.SetColSize(0, 162)
@@ -1957,7 +2243,6 @@ class RposMain(wx.Frame):
 
     ###--- Classification ---###
     def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
-
         self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
         self.createClf.Show()
 
@@ -1975,7 +2260,8 @@ class RposMain(wx.Frame):
         self.clf_treectrl.Expand(root)
 
     def showClassification(self, event):
-        pass
+        self.showClf = ShowClassification(self, wx.ID_ANY, self.db)
+        self.showClf.Show()
 
     def editClassification(self, event):
         self.editClf = EditClassification(self, wx.ID_ANY, self.db)
@@ -2048,15 +2334,16 @@ class RposMain(wx.Frame):
             self.affiliation_grid.SetCellValue(i, 1, affiliation[3])
 
     def registerAffiliation(self, event):  # wxGlade: RposMain.<event_handler>
-
         registeraffiliation = RegisterAffiliation(self, wx.ID_ANY, self.db)
         registeraffiliation.Show()
 
     def showAffiliation(self, event):
-        pass
+        self.showAff = ShowAffiliation(self, wx.ID_ANY, self.db)
+        self.showAff.Show()
 
     def editAffiliation(self, event):
-        pass
+        self.editAff = EditAffiliation(self, wx.ID_ANY, self.db)
+        self.editAff.Show()
 
     def deleteAffiliation(self, event):
         msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
@@ -2074,12 +2361,10 @@ class RposMain(wx.Frame):
 
     ###--- Event ---###
     def pGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-
         self.selectedPaper = self.paper_grid.GetSelectedCells()
         pass
 
     def pGrid_dLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
-
         row = event.GetRow()
         selected_paper_title = self.paper_grid.GetCellValue(row, 0)
         p = Paper(self.db)
@@ -2135,10 +2420,12 @@ class RposMain(wx.Frame):
         self.author_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def afGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
+        event.Skip()
 
-        row = event.GetRow()
-        selected_aff_name = self.affiliation_grid.GetCellValue(row, 0)
+    def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
+        self.row = event.GetRow()
+        selected_aff_name = self.affiliation_grid.GetCellValue(self.row, 0)
         af = Affiliation(self.db)
         selected_affs = af.where(name=selected_aff_name)
         self.selected_aff = selected_affs[0]
@@ -2155,9 +2442,6 @@ class RposMain(wx.Frame):
         self.Bind(wx.EVT_MENU, self.deleteAffiliation, popupDelete)
         self.affiliation_grid.PopupMenu(menu)
         menu.Destroy()
-
-    def afGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        event.Skip()
 
     def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
         c = Classification(self.db)
