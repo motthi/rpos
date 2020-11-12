@@ -920,7 +920,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i + 1)
+                self.affiliation_cmb.SetSelection(i+1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, u"保存")
@@ -968,7 +968,7 @@ class RegisterClassification(wx.Frame):
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((400, 397))
+        self.SetSize((400, 377))
         self.SetTitle("rpos : Register Classification")
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
@@ -981,25 +981,44 @@ class RegisterClassification(wx.Frame):
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
-        clf_create_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"新規分類ラベル登録")
-        clf_create_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(clf_create_lbl, 0, wx.ALL, 4)
+        grid_sizer_1 = wx.FlexGridSizer(3, 2, 5, 5)
+        sizer_2.Add(grid_sizer_1, 1, wx.EXPAND, 0)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-
-        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"分類名")
+        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Name")
         name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
+
+        sort_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Sort")
+        sort_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(sort_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+
+        self.sort_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
+        self.sort_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(self.sort_txt, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
+
+        parent_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Parent")
+        parent_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        grid_sizer_1.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+
+        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
+        self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        c = Classification(self.db)
+        clfs = c.All()
+        self.parent_cmb.Append("")
+        for i, clf in enumerate(clfs):
+            self.parent_cmb.Append(clf[1])
+            if(self.GetParent().parent != None and self.GetParent().parent[0] == clf[0]):
+                self.parent_cmb.SetSelection(i+1)
+        grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
         sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
 
-        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
 
@@ -1007,36 +1026,11 @@ class RegisterClassification(wx.Frame):
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
 
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_5, 0, wx.EXPAND, 0)
-
-        sort_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"ソート番号")
-        sort_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(sort_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
-
-        self.sort_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
-        self.sort_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(self.sort_txt, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
-
-        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_6, 0, wx.ALL | wx.EXPAND, 2)
-
-        parent_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"親分類")
-        parent_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_6.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
-
-        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
-        self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        c = Classification(self.db)
-        clfs = c.All()
-        self.parent_cmb.Append("")
-        for clf in clfs:
-            self.parent_cmb.Append(clf[1])
-        sizer_6.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
-
-        self.create_btn = wx.Button(self.panel_1, wx.ID_ANY, u"新規作成")
+        self.create_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create")
         self.create_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_2.Add(self.create_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
+
+        grid_sizer_1.AddGrowableCol(1)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -1225,7 +1219,7 @@ class EditClassification(wx.Frame):
                 continue
             self.parent_cmb.Append(clf[1])
             if(parent_clf != [] and clf[0] == parent_clf[0][0]):
-                self.parent_cmb.SetSelection(i + 1)
+                self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
@@ -1253,7 +1247,9 @@ class EditClassification(wx.Frame):
         self.Centre()
         self.RegisterHotKey(1234, wx.MOD_CONTROL, ord('z'))
 
+        self.Bind(wx.EVT_KEY_DOWN, self.hotKey, self.desc_txt)
         self.Bind(wx.EVT_BUTTON, self.editClassification, self.edit_btn)
+        self.Bind(wx.EVT_KEY_DOWN, self.hotKey, self)
         # end wxGlade
 
     def editClassification(self, event):  # wxGlade: EditClassification.<event_handler>
@@ -1284,6 +1280,10 @@ class EditClassification(wx.Frame):
         clfs = c.All(column='turn')
         self.GetParent().indexClassifications(c, clfs)
         self.GetParent().SetClfSelection()
+
+    def hotKey(self, event):  # wxGlade: EditClassification.<event_handler>
+        print("Event handler 'hotKey' not implemented!")
+        event.Skip()
 # end of class EditClassification
 
 
@@ -1954,7 +1954,6 @@ class RposMain(wx.Frame):
 
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.paper_grid.CreateGrid(1, 7)
-        self.paper_grid.SetRowLabelSize(30)
         self.paper_grid.SetColLabelSize(25)
         self.paper_grid.EnableEditing(0)
         self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -1989,7 +1988,6 @@ class RposMain(wx.Frame):
 
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
-        self.author_grid.SetRowLabelSize(30)
         self.author_grid.SetColLabelSize(25)
         self.author_grid.EnableEditing(0)
         self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2015,7 +2013,6 @@ class RposMain(wx.Frame):
 
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
-        self.affiliation_grid.SetRowLabelSize(30)
         self.affiliation_grid.SetColLabelSize(25)
         self.affiliation_grid.EnableEditing(0)
         self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2243,6 +2240,12 @@ class RposMain(wx.Frame):
 
     ###--- Classification ---###
     def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
+        self.parent = None
+        self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
+        self.createClf.Show()
+
+    def registerSubClassification(self, event):  # wxGlade: RposMain.<event_handler>
+        self.parent = self.selected_clf
         self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
         self.createClf.Show()
 
@@ -2457,11 +2460,13 @@ class RposMain(wx.Frame):
             self.selected_clf = selected_classification[0]
             menu = wx.Menu()
             popupRegister = menu.Append(-1, 'Register New Classification')
+            popupRegisterSub = menu.Append(-1, 'Register Sub Classification in ' + str(self.selected_clf[1]))
             popupShow = menu.Append(-1, 'Show Detail')
             popupEdit = menu.Append(-1, 'Edit')
             popupDelete = menu.Append(-1, 'Delete')
             popupNarrow = menu.Append(-1, 'Narrow Down by this Classification')
             self.Bind(wx.EVT_MENU, self.registerClassification, popupRegister)
+            self.Bind(wx.EVT_MENU, self.registerSubClassification, popupRegisterSub)
             self.Bind(wx.EVT_MENU, self.showClassification, popupShow)
             self.Bind(wx.EVT_MENU, self.editClassification, popupEdit)
             self.Bind(wx.EVT_MENU, self.deleteClassification, popupDelete)
