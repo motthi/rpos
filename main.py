@@ -12,8 +12,6 @@ import wx.grid
 # end wxGlade
 
 # begin wxGlade: extracode
-import sys
-sys.path.append('./scripts/')
 import os
 import wx.adv
 import wx.html
@@ -722,8 +720,8 @@ class EditPaper(wx.Frame):
 
     def indexClassifications(self):
         clf_lbl = ""
+        c = Classification(self.db)
         for clf_id in self.clfs_id:
-            c = Classification(self.db)
             clf = c.find(clf_id)
             clf_lbl += str(clf[1]) + "; "
         self.clf_lbl.SetLabel(clf_lbl)
@@ -1006,12 +1004,11 @@ class RegisterClassification(wx.Frame):
 
         self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
         self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        c = Classification(self.db)
-        clfs = c.All()
         self.parent_cmb.Append("")
+        clfs = self.GetParent().getClfWithSubLayer()
         for i, clf in enumerate(clfs):
-            self.parent_cmb.Append(clf[1])
-            if(self.GetParent().parent != None and self.GetParent().parent[0] == clf[0]):
+            self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
+            if(clf[1] == self.GetParent().selected_clf[1]):
                 self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
@@ -1045,7 +1042,7 @@ class RegisterClassification(wx.Frame):
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
         turn = self.sort_txt.GetValue()
-        parent = self.parent_cmb.GetValue()
+        parent = self.parent_cmb.GetValue().strip()
         if(turn == None or turn == ""):
             turn = 0
         parent_clf = self.parent_cmb.GetValue()
@@ -1063,7 +1060,7 @@ class RegisterClassification(wx.Frame):
         #--- Update TreeCtrl ---#
         clfs = c.All(column='turn')
         self.GetParent().indexClassifications(c, clfs)
-        self.GetParent().SetClfSelection()
+        self.GetParent().setClfSelection()
 # end of class RegisterClassification
 
 
@@ -1211,14 +1208,12 @@ class EditClassification(wx.Frame):
         self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
         self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         c = Classification(self.db)
-        clfs = c.All()
         parent_clf = c.parentclasses(self.GetParent().selected_clf[0])
         self.parent_cmb.Append("")
+        clfs = self.GetParent().getClfWithSubLayer()
         for i, clf in enumerate(clfs):
-            if(self.GetParent().selected_clf[0] == clf[0]):
-                continue
-            self.parent_cmb.Append(clf[1])
-            if(parent_clf != [] and clf[0] == parent_clf[0][0]):
+            self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
+            if(parent_clf != [] and clf[1] == parent_clf[0][1]):
                 self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -1247,9 +1242,7 @@ class EditClassification(wx.Frame):
         self.Centre()
         self.RegisterHotKey(1234, wx.MOD_CONTROL, ord('z'))
 
-        self.Bind(wx.EVT_KEY_DOWN, self.hotKey, self.desc_txt)
         self.Bind(wx.EVT_BUTTON, self.editClassification, self.edit_btn)
-        self.Bind(wx.EVT_KEY_DOWN, self.hotKey, self)
         # end wxGlade
 
     def editClassification(self, event):  # wxGlade: EditClassification.<event_handler>
@@ -1257,7 +1250,7 @@ class EditClassification(wx.Frame):
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
         turn = self.sort_txt.GetValue()
-        parent = self.parent_cmb.GetValue()
+        parent = self.parent_cmb.GetValue().strip()
         if(turn == None or turn == ""):
             turn = 0
         parent_clf = self.parent_cmb.GetValue()
@@ -1279,11 +1272,7 @@ class EditClassification(wx.Frame):
         #--- Update TreeCtrl ---#
         clfs = c.All(column='turn')
         self.GetParent().indexClassifications(c, clfs)
-        self.GetParent().SetClfSelection()
-
-    def hotKey(self, event):  # wxGlade: EditClassification.<event_handler>
-        print("Event handler 'hotKey' not implemented!")
-        event.Skip()
+        self.GetParent().setClfSelection()
 # end of class EditClassification
 
 
@@ -1309,10 +1298,13 @@ class AttachClassification(wx.Frame):
         self.listctrl.InsertColumn(0, " ", wx.LIST_FORMAT_CENTER, 30)
         self.listctrl.InsertColumn(1, "id", wx.LIST_FORMAT_CENTER, 30)
         self.listctrl.InsertColumn(2, "name", wx.LIST_FORMAT_LEFT, 50)
+        clfs_layer = self.GetParent().GetParent().getClfWithSubLayer()
         c = Classification(self.db)
         self.clfs = c.All()
-        for i, clf in enumerate(self.clfs):
-            self.listctrl.Append([" ", clf[0], clf[1]])
+        for i, clf_layer in enumerate(clfs_layer):
+            clf_buf = c.where(name=clf_layer[1])
+            clf = clf_buf[0]
+            self.listctrl.Append([" ",  clf[0], "   "*clf_layer[0] + clf[1]])
             if(clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
@@ -1330,7 +1322,6 @@ class AttachClassification(wx.Frame):
         # end wxGlade
 
     def attachClf(self, event):  # wxGlade: AttachClassification.<event_handler>
-
         self.GetParent().clfs_id = self.listctrl.checkedItem
         self.Close()
         self.GetParent().indexClassifications()
@@ -1897,11 +1888,10 @@ class RposMain(wx.Frame):
 
         self.narClf_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN)
         self.narClf_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        c = Classification(self.db)
-        clfs = c.All()
+        clfs = self.getClfWithSubLayer()
         for clf in clfs:
-            self.narClf_cmb.Append(clf[1])
-        sizer_14.Add(self.narClf_cmb, 0, wx.LEFT, 20)
+            self.narClf_cmb.Append(str("  ") * clf[0] + clf[1])
+        sizer_14.Add(self.narClf_cmb, 0, wx.EXPAND | wx.LEFT, 20)
 
         sizer_15 = wx.BoxSizer(wx.VERTICAL)
         sizer_11.Add(sizer_15, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
@@ -1916,7 +1906,7 @@ class RposMain(wx.Frame):
         affs = af.All()
         for aff in affs:
             self.narAff_cmb.Append(aff[1])
-        sizer_15.Add(self.narAff_cmb, 0, wx.LEFT, 20)
+        sizer_15.Add(self.narAff_cmb, 0, wx.EXPAND | wx.LEFT, 20)
 
         sizer_16 = wx.BoxSizer(wx.VERTICAL)
         sizer_11.Add(sizer_16, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
@@ -1954,6 +1944,7 @@ class RposMain(wx.Frame):
 
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.paper_grid.CreateGrid(1, 7)
+        self.paper_grid.SetRowLabelSize(30)
         self.paper_grid.SetColLabelSize(25)
         self.paper_grid.EnableEditing(0)
         self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -1988,6 +1979,7 @@ class RposMain(wx.Frame):
 
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
+        self.author_grid.SetRowLabelSize(30)
         self.author_grid.SetColLabelSize(25)
         self.author_grid.EnableEditing(0)
         self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2013,6 +2005,7 @@ class RposMain(wx.Frame):
 
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
+        self.affiliation_grid.SetRowLabelSize(30)
         self.affiliation_grid.SetColLabelSize(25)
         self.affiliation_grid.EnableEditing(0)
         self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2045,6 +2038,7 @@ class RposMain(wx.Frame):
         self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.narAff_cmb)
         self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.narRead_cmb)
         self.Bind(wx.EVT_BUTTON, self.resetNarrowing, self.detailNarrowing_btn)
+        self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.treeCtrl_Activated, self.clf_treectrl)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.treeCtrl_rightClicked, self.clf_treectrl)
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_LEFT_DCLICK, self.pGrid_dLeftClick, self.paper_grid)
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_RIGHT_CLICK, self.pGrid_rightClick, self.paper_grid)
@@ -2155,7 +2149,7 @@ class RposMain(wx.Frame):
     def narrowPaper(self, event):  # wxGlade: RposMain.<event_handler>
         narTitle = self.narTitle_txtCtrl.GetValue()
         narAuthor = self.narAuthor_txtCtrl.GetValue()
-        narClf = self.narClf_cmb.GetValue()
+        narClf = self.narClf_cmb.GetValue().strip()
         narAff = self.narAff_cmb.GetValue()
         narRead = self.narRead_cmb.GetValue()
         p = Paper(self.db)
@@ -2239,16 +2233,6 @@ class RposMain(wx.Frame):
         self.author_grid.DeleteRows(self.row, 1)
 
     ###--- Classification ---###
-    def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
-        self.parent = None
-        self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
-        self.createClf.Show()
-
-    def registerSubClassification(self, event):  # wxGlade: RposMain.<event_handler>
-        self.parent = self.selected_clf
-        self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
-        self.createClf.Show()
-
     def indexClassifications(self, c, clfs):
         c = Classification(self.db)
         if(clfs == []):
@@ -2261,6 +2245,16 @@ class RposMain(wx.Frame):
             if(parentclfs == []):  # Show Only Top Classification
                 self.getAndShowSubClf(c, root, clf)  # Recursive Function
         self.clf_treectrl.Expand(root)
+
+    def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
+        self.parent = None
+        self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
+        self.createClf.Show()
+
+    def registerSubClassification(self, event):  # wxGlade: RposMain.<event_handler>
+        self.parent = self.selected_clf
+        self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
+        self.createClf.Show()
 
     def showClassification(self, event):
         self.showClf = ShowClassification(self, wx.ID_ANY, self.db)
@@ -2291,16 +2285,17 @@ class RposMain(wx.Frame):
 
         #--- Update TreeCtrl and Combox ---#
         self.indexClassifications(c, c.All())
-        self.SetClfSelection()
+        self.setClfSelection()
 
     def narrowClassification(self, event):
         if(self.selected_clf == 'All'):
             p = Paper(self.db)
             papers = p.All()
+            self.narClf_cmb.SetSelection(-1)
         else:
             c = Classification(self.db)
             papers = c.papers(self.selected_clf[0])
-            self.narClf_cmb.SetStringSelection(self.selected_clf[1])
+            self.narClf_cmb.SetStringSelection("  " * (self.selected_clf_layer - 1) + self.selected_clf[1])
         self.indexPaper(papers)
 
     def getAndShowSubClf(self, c, parent, clf):
@@ -2318,13 +2313,35 @@ class RposMain(wx.Frame):
             self.getAndShowSubClf(c, item, subclf)
         self.clf_treectrl.Expand(item)
 
-    def SetClfSelection(self):
-        c = Classification(self.db)
-        clfs = c.All()
-        clfs = sorted(clfs, key=lambda x: x[3], reverse=False)
+    def setClfSelection(self):
         self.narClf_cmb.Clear()
+        clfs = self.getClfWithSubLayer()
         for clf in clfs:
-            self.narClf_cmb.Append(clf[1])
+            self.narClf_cmb.Append(str("  ") * clf[0] + clf[1])
+
+    def getClfWithSubLayer(self):
+        c = Classification(self.db)
+        clfs = c.All(column='turn')
+        clfs_name_layer = []
+        for clf in clfs:
+            if(c.parentclasses(clf[0]) == []):
+                clfs_name_layer.append([0, clf[1]])
+                self.getSubClf(c, clf[0], 0, clfs_name_layer)
+        return clfs_name_layer
+
+    def getSubClf(self, c, clf_id, layer, clfs_name_layer):
+        clfs = sorted(c.subclasses(clf_id), key=lambda x: x[3], reverse=False)
+        layer += 1
+        for clf in clfs:
+            clfs_name_layer.append([layer, clf[1]])
+            self.getSubClf(c, clf[0], layer, clfs_name_layer)
+
+    def getLayer(self, layer, clf_item):
+        if(self.clf_treectrl.GetItemText(clf_item) == 'Classifications'):
+            return layer
+        else:
+            parent_clf = self.clf_treectrl.GetItemParent(clf_item)
+            return self.getLayer(layer + 1, parent_clf)
 
     ###--- Affiliation ---###
     def indexAffiliation(self, affiliations):
@@ -2397,80 +2414,6 @@ class RposMain(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showPaper, popupShow)
         self.Bind(wx.EVT_MENU, self.editPaper, popupEdit)
         self.Bind(wx.EVT_MENU, self.deletePaper, popupDelete)
-        self.paper_grid.PopupMenu(menu)
-        menu.Destroy()
-
-    def aGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        event.Skip()
-
-    def aGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        self.row = event.GetRow()
-        selected_author_name = self.author_grid.GetCellValue(self.row, 0)
-        a = Author(self.db)
-        selected_authors = a.where(name=selected_author_name)
-        self.selected_author = selected_authors[0]
-
-        #--- Configure Menu ---#
-        menu = wx.Menu()
-        popupRegister = menu.Append(-1, 'Register New Author')
-        popupShow = menu.Append(-1, 'Show')
-        popupEdit = menu.Append(-1, 'Edit')
-        popupDelete = menu.Append(-1, 'Delete')
-        self.Bind(wx.EVT_MENU, self.registerAuthor, popupRegister)
-        self.Bind(wx.EVT_MENU, self.showAuthor, popupShow)
-        self.Bind(wx.EVT_MENU, self.editAuthor, popupEdit)
-        self.Bind(wx.EVT_MENU, self.deleteAuthor, popupDelete)
-        self.author_grid.PopupMenu(menu)
-        menu.Destroy()
-
-    def afGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
-        event.Skip()
-
-    def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        self.row = event.GetRow()
-        selected_aff_name = self.affiliation_grid.GetCellValue(self.row, 0)
-        af = Affiliation(self.db)
-        selected_affs = af.where(name=selected_aff_name)
-        self.selected_aff = selected_affs[0]
-
-        #--- Configure Menu ---#
-        menu = wx.Menu()
-        popupRegister = menu.Append(-1, 'Register New Affiliation')
-        popupShow = menu.Append(-1, 'Show')
-        popupEdit = menu.Append(-1, 'Edit')
-        popupDelete = menu.Append(-1, 'Delete')
-        self.Bind(wx.EVT_MENU, self.registerAffiliation, popupRegister)
-        self.Bind(wx.EVT_MENU, self.showAffiliation, popupShow)
-        self.Bind(wx.EVT_MENU, self.editAffiliation, popupEdit)
-        self.Bind(wx.EVT_MENU, self.deleteAffiliation, popupDelete)
-        self.affiliation_grid.PopupMenu(menu)
-        menu.Destroy()
-
-    def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
-        c = Classification(self.db)
-        selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
-        if(selected_classification == []):
-            menu = wx.Menu()
-            self.selected_clf = "All"
-            popupRegister = menu.Append(-1, 'Register New Classification')
-            popupNarrow = menu.Append(-1, 'Clear Narrowing')
-            self.Bind(wx.EVT_MENU, self.registerClassification, popupRegister)
-            self.Bind(wx.EVT_MENU, self.narrowClassification, popupNarrow)
-        else:
-            self.selected_clf = selected_classification[0]
-            menu = wx.Menu()
-            popupRegister = menu.Append(-1, 'Register New Classification')
-            popupRegisterSub = menu.Append(-1, 'Register Sub Classification in ' + str(self.selected_clf[1]))
-            popupShow = menu.Append(-1, 'Show Detail')
-            popupEdit = menu.Append(-1, 'Edit')
-            popupDelete = menu.Append(-1, 'Delete')
-            popupNarrow = menu.Append(-1, 'Narrow Down by this Classification')
-            self.Bind(wx.EVT_MENU, self.registerClassification, popupRegister)
-            self.Bind(wx.EVT_MENU, self.registerSubClassification, popupRegisterSub)
-            self.Bind(wx.EVT_MENU, self.showClassification, popupShow)
-            self.Bind(wx.EVT_MENU, self.editClassification, popupEdit)
-            self.Bind(wx.EVT_MENU, self.deleteClassification, popupDelete)
-            self.Bind(wx.EVT_MENU, self.narrowClassification, popupNarrow)
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
@@ -2547,6 +2490,91 @@ class RposMain(wx.Frame):
 
         self.narrowPaper(event)
 
+    def aGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
+        event.Skip()
+
+    def aGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
+        self.row = event.GetRow()
+        selected_author_name = self.author_grid.GetCellValue(self.row, 0)
+        a = Author(self.db)
+        selected_authors = a.where(name=selected_author_name)
+        self.selected_author = selected_authors[0]
+
+        #--- Configure Menu ---#
+        menu = wx.Menu()
+        popupRegister = menu.Append(-1, 'Register New Author')
+        popupShow = menu.Append(-1, 'Show')
+        popupEdit = menu.Append(-1, 'Edit')
+        popupDelete = menu.Append(-1, 'Delete')
+        self.Bind(wx.EVT_MENU, self.registerAuthor, popupRegister)
+        self.Bind(wx.EVT_MENU, self.showAuthor, popupShow)
+        self.Bind(wx.EVT_MENU, self.editAuthor, popupEdit)
+        self.Bind(wx.EVT_MENU, self.deleteAuthor, popupDelete)
+        self.author_grid.PopupMenu(menu)
+        menu.Destroy()
+
+    def afGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
+        event.Skip()
+
+    def afGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
+        self.row = event.GetRow()
+        selected_aff_name = self.affiliation_grid.GetCellValue(self.row, 0)
+        af = Affiliation(self.db)
+        selected_affs = af.where(name=selected_aff_name)
+        self.selected_aff = selected_affs[0]
+
+        #--- Configure Menu ---#
+        menu = wx.Menu()
+        popupRegister = menu.Append(-1, 'Register New Affiliation')
+        popupShow = menu.Append(-1, 'Show')
+        popupEdit = menu.Append(-1, 'Edit')
+        popupDelete = menu.Append(-1, 'Delete')
+        self.Bind(wx.EVT_MENU, self.registerAffiliation, popupRegister)
+        self.Bind(wx.EVT_MENU, self.showAffiliation, popupShow)
+        self.Bind(wx.EVT_MENU, self.editAffiliation, popupEdit)
+        self.Bind(wx.EVT_MENU, self.deleteAffiliation, popupDelete)
+        self.affiliation_grid.PopupMenu(menu)
+        menu.Destroy()
+
+    def treeCtrl_Activated(self, event):  # wxGlade: RposMain.<event_handler>
+        c = Classification(self.db)
+        selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
+        self.selected_clf_layer = self.getLayer(0, event.GetItem())
+        if(selected_classification == []):
+            self.selected_clf = 'All'
+        else:
+            self.selected_clf = selected_classification[0]
+        self.narrowClassification(event)
+
+    def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
+        c = Classification(self.db)
+        selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
+        if(selected_classification == []):
+            menu = wx.Menu()
+            self.selected_clf = "All"
+            popupRegister = menu.Append(-1, 'Register New Classification')
+            popupNarrow = menu.Append(-1, 'Clear Narrowing')
+            self.Bind(wx.EVT_MENU, self.registerClassification, popupRegister)
+            self.Bind(wx.EVT_MENU, self.narrowClassification, popupNarrow)
+        else:
+            self.selected_clf = selected_classification[0]
+            self.selected_clf_layer = self.getLayer(0, event.GetItem())
+            menu = wx.Menu()
+            popupRegister = menu.Append(-1, 'Register New Classification')
+            popupRegisterSub = menu.Append(-1, 'Register Sub Classification in ' + str(self.selected_clf[1]))
+            popupShow = menu.Append(-1, 'Show Detail')
+            popupEdit = menu.Append(-1, 'Edit')
+            popupDelete = menu.Append(-1, 'Delete')
+            popupNarrow = menu.Append(-1, 'Narrow Down by this Classification')
+            self.Bind(wx.EVT_MENU, self.registerClassification, popupRegister)
+            self.Bind(wx.EVT_MENU, self.registerSubClassification, popupRegisterSub)
+            self.Bind(wx.EVT_MENU, self.showClassification, popupShow)
+            self.Bind(wx.EVT_MENU, self.editClassification, popupEdit)
+            self.Bind(wx.EVT_MENU, self.deleteClassification, popupDelete)
+            self.Bind(wx.EVT_MENU, self.narrowClassification, popupNarrow)
+        self.paper_grid.PopupMenu(menu)
+        menu.Destroy()
+
     def narrowTitleAndRead(self, narTitle, narRead):
         p = Paper(self.db)
         if(narRead == "Done"):
@@ -2610,10 +2638,12 @@ class ClfListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoW
         self.checkedItem = []
 
     def OnCheckItem(self, index, flag):
+        c = Classification(self.GetParent().GetParent().db)
+        clf = c.find(int(self.GetItemText(index, 1)))
         if(flag == True):
-            self.checkedItem.append(self.GetParent().GetParent().clfs[index][0])
+            self.checkedItem.append(clf[0])
         elif(flag == False):
-            self.checkedItem.remove(self.GetParent().GetParent().clfs[index][0])
+            self.checkedItem.remove(clf[0])
 
 
 class AffListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoWidthMixin):
@@ -2625,10 +2655,12 @@ class AffListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoW
         self.checkedItem = []
 
     def OnCheckItem(self, index, flag):
+        af = Affiliation(self.GetParent().GetParent().db)
+        aff = af.find(int(self.GetItemText(index, 1)))
         if(flag == True):
-            self.checkedItem.append(self.GetParent().GetParent().affs[index][0])
+            self.checkedItem.append(aff[0])
         elif(flag == False):
-            self.checkedItem.remove(self.GetParent().GetParent().affs[index][0])
+            self.checkedItem.remove(aff[0])
 
 
 if __name__ == "__main__":
