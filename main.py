@@ -56,7 +56,7 @@ class RegisterPaper(wx.Frame):
         sizer_2.Add(sizer_10, 5, wx.EXPAND, 0)
 
         label_1 = wx.StaticText(self.panel_1, wx.ID_ANY, "BibTex")
-        label_1.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        label_1.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_10.Add(label_1, 0, wx.ALL, 3)
 
         self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
@@ -66,80 +66,73 @@ class RegisterPaper(wx.Frame):
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
         sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
 
-        description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
+        description_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(description_lbl, 3, wx.ALL, 2)
 
         self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
-        self.description_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.description_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(self.description_txt, 12, wx.ALL | wx.EXPAND, 2)
 
-        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_11, 1, wx.EXPAND, 0)
+        grid_sizer_1 = wx.FlexGridSizer(5, 2, 5, 5)
+        sizer_2.Add(grid_sizer_1, 1, wx.EXPAND, 0)
 
-        fileBibtex_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"ファイル", style=wx.ALIGN_CENTER_HORIZONTAL)
+        fileBibtex_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "File", style=wx.ALIGN_CENTER_HORIZONTAL)
         fileBibtex_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_11.Add(fileBibtex_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(fileBibtex_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+
+        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+        grid_sizer_1.Add(sizer_3, 1, wx.EXPAND, 0)
 
         self.fileBibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.fileBibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_11.Add(self.fileBibtex_txt, 15, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        sizer_3.Add(self.fileBibtex_txt, 15, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.fileselect_btn = wx.Button(self.panel_1, wx.ID_ANY, u"選択")
+        self.fileselect_btn = wx.Button(self.panel_1, wx.ID_ANY, "Select")
         self.fileselect_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_11.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 1)
-
-        sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_12, 1, wx.EXPAND, 0)
+        sizer_3.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 1)
 
         doi_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
         doi_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_12.Add(doi_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(doi_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.doi_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.doi_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_12.Add(self.doi_txt, 16, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.doi_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
 
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_5, 1, wx.EXPAND, 0)
-
-        self.isread_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"調査")
+        self.isread_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "IsRead")
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.isread_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[u"未調査", u"調査済"], style=wx.CB_DROPDOWN)
+        self.isread_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["Not Yet", "Done"], style=wx.CB_DROPDOWN)
         self.isread_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        self.isread_cmb.SetSelection(1)
-        sizer_5.Add(self.isread_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        self.isread_cmb.SetSelection(0)
+        grid_sizer_1.Add(self.isread_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-
-        self.clf_btn = wx.Button(self.panel_1, wx.ID_ANY, u"分類追加")
+        self.clf_btn = wx.Button(self.panel_1, wx.ID_ANY, "Classification")
         self.clf_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.clf_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        grid_sizer_1.Add(self.clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
 
-        sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_7, 1, wx.EXPAND, 0)
-
-        self.aff_btn = wx.Button(self.panel_1, wx.ID_ANY, u"所属追加")
+        self.aff_btn = wx.Button(self.panel_1, wx.ID_ANY, "Affiliation")
         self.aff_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_7.Add(self.aff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.aff_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         self.aff_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_7.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        grid_sizer_1.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
 
         sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_6, 1, wx.ALIGN_RIGHT, 0)
 
-        self.registerPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
+        self.registerPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, "Register")
         self.registerPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_6.Add(self.registerPaper_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+
+        grid_sizer_1.AddGrowableCol(1)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -510,7 +503,7 @@ class EditPaper(wx.Frame):
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
 
-        description_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, u"詳細")
+        description_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "Description")
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(description_lbl, 0, wx.ALL, 3)
 
@@ -525,7 +518,7 @@ class EditPaper(wx.Frame):
 
         grid_sizer_1 = wx.FlexGridSizer(5, 2, 2, 0)
 
-        fileBibtex_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, u"ファイル", style=wx.ALIGN_CENTER_HORIZONTAL)
+        fileBibtex_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "File", style=wx.ALIGN_CENTER_HORIZONTAL)
         fileBibtex_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(fileBibtex_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
@@ -553,17 +546,17 @@ class EditPaper(wx.Frame):
             self.doi_txt.SetValue(self.GetParent().selected_paper[5])
         grid_sizer_1.Add(self.doi_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
-        self.isread_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, u"調査")
+        self.isread_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "IsRead")
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.isread_cmb = wx.ComboBox(self.panel_4, wx.ID_ANY, choices=[u"未調査", u"調査済"], style=wx.CB_DROPDOWN)
+        self.isread_cmb = wx.ComboBox(self.panel_4, wx.ID_ANY, choices=["NotYet", "Done"], style=wx.CB_DROPDOWN)
         self.isread_cmb.SetMinSize((80, 27))
         self.isread_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.isread_cmb.SetSelection(self.GetParent().selected_paper[7])
         grid_sizer_1.Add(self.isread_cmb, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.clf_btn = wx.Button(self.panel_4, wx.ID_ANY, u"分類追加")
+        self.clf_btn = wx.Button(self.panel_4, wx.ID_ANY, "Classification")
         self.clf_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -571,9 +564,9 @@ class EditPaper(wx.Frame):
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.aff_btn = wx.Button(self.panel_4, wx.ID_ANY, u"所属追加")
+        self.aff_btn = wx.Button(self.panel_4, wx.ID_ANY, "Affiliation")
         self.aff_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        grid_sizer_1.Add(self.aff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.aff_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         self.aff_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -885,16 +878,12 @@ class EditAuthor(wx.Frame):
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
-        edit_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"著者編集")
-        edit_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(edit_lbl, 0, wx.ALL, 4)
-
         sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
 
-        name_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"著者名")
-        name_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        Name = wx.StaticText(self.panel_1, wx.ID_ANY, "Name")
+        Name.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_3.Add(Name, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -905,7 +894,7 @@ class EditAuthor(wx.Frame):
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
         sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
 
-        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"詳細")
+        desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 3)
 
@@ -918,7 +907,7 @@ class EditAuthor(wx.Frame):
         sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_6, 0, wx.ALL | wx.EXPAND, 2)
 
-        affiliation_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"所属")
+        affiliation_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Affiliation")
         affiliation_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_6.Add(affiliation_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
@@ -933,7 +922,7 @@ class EditAuthor(wx.Frame):
                 self.affiliation_cmb.SetSelection(i+1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, u"保存")
+        self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
         self.edit_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_2.Add(self.edit_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
 
@@ -1321,7 +1310,7 @@ class AttachClassification(wx.Frame):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
 
-        self.attachClf_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
+        self.attachClf_btn = wx.Button(self.panel_1, wx.ID_ANY, "Register")
         self.attachClf_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_1.Add(self.attachClf_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 3)
 
@@ -1369,7 +1358,7 @@ class RegisterAffiliation(wx.Frame):
 
         self.attribute_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Attribute")
         self.attribute_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(self.attribute_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        sizer_2.Add(self.attribute_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.attribute_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.attribute_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -1635,7 +1624,7 @@ class AttachAffiliation(wx.Frame):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
 
-        self.attachClf_btn = wx.Button(self.panel_1, wx.ID_ANY, u"登録")
+        self.attachClf_btn = wx.Button(self.panel_1, wx.ID_ANY, "Register")
         self.attachClf_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_1.Add(self.attachClf_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 3)
 
@@ -1684,7 +1673,7 @@ class WelcomePage(wx.Frame):
         sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_3, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-        selectDB_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"データベースの選択", style=wx.ALIGN_CENTER_HORIZONTAL)
+        selectDB_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Select Database", style=wx.ALIGN_CENTER_HORIZONTAL)
         selectDB_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_3.Add(selectDB_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
 
@@ -1699,14 +1688,15 @@ class WelcomePage(wx.Frame):
             self.selectDB_dbx.Append(db)
         sizer_3.Add(self.selectDB_dbx, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
 
-        self.selectDB_btn = wx.Button(self.panel_1, wx.ID_ANY, u"データベース選択")
+        self.selectDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Open")
         self.selectDB_btn.SetMinSize((100, 40))
+        self.selectDB_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_3.Add(self.selectDB_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
 
         sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2.Add(sizer_4, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, u"新規作成")
+        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create New")
         self.createDB_btn.SetMinSize((120, 50))
         self.createDB_btn.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(self.createDB_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 30)
@@ -1749,7 +1739,7 @@ class CreateDB(wx.Frame):
         # begin wxGlade: CreateDB.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((515, 157))
+        self.SetSize((515, 221))
         self.SetTitle("rpos : Creat Database")
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
@@ -1763,7 +1753,7 @@ class CreateDB(wx.Frame):
         sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
 
-        newDBname_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, u"新規データベース名")
+        newDBname_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Database Name")
         newDBname_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_2.Add(newDBname_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
 
@@ -1771,8 +1761,17 @@ class CreateDB(wx.Frame):
         self.newDBname_txt.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_2.Add(self.newDBname_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 9)
 
-        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, u"新規作成")
+        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create")
         sizer_2.Add(self.createDB_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
+
+        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(sizer_3, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+        self.return_btn = wx.Button(self.panel_1, wx.ID_ANY, "Return")
+        sizer_3.Add(self.return_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
+
+        self.close_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
+        sizer_3.Add(self.close_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
 
         self.panel_1.SetSizer(sizer_1)
 
@@ -1780,6 +1779,8 @@ class CreateDB(wx.Frame):
         self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.createDB, self.createDB_btn)
+        self.Bind(wx.EVT_BUTTON, self.returnToWelcomePage, self.return_btn)
+        self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         # end wxGlade
 
@@ -1801,6 +1802,14 @@ class CreateDB(wx.Frame):
 
     def exitProgram(self, event):  # wxGlade: CreateDB.<event_handler>
         self.Destroy()
+
+    def closeWindow(self, event):  # wxGlade: CreateDB.<event_handler>
+        self.Close()
+
+    def returnToWelcomePage(self, event):  # wxGlade: CreateDB.<event_handler>
+        self.Close()
+        self.welcomepage = WelcomePage(None, wx.ID_ANY, "")
+        self.welcomepage.Show()
 # end of class CreateDB
 
 
