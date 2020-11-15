@@ -919,7 +919,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i+1)
+                self.affiliation_cmb.SetSelection(i + 1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
@@ -1010,7 +1010,7 @@ class RegisterClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(clf[1] == self.GetParent().selected_clf[1]):
-                self.parent_cmb.SetSelection(i+1)
+                self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -1215,7 +1215,7 @@ class EditClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(parent_clf != [] and clf[1] == parent_clf[0][1]):
-                self.parent_cmb.SetSelection(i+1)
+                self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
@@ -1305,7 +1305,7 @@ class AttachClassification(wx.Frame):
         for i, clf_layer in enumerate(clfs_layer):
             clf_buf = c.where(name=clf_layer[1])
             clf = clf_buf[0]
-            self.listctrl.Append([" ",  clf[0], "   "*clf_layer[0] + clf[1]])
+            self.listctrl.Append([" ", clf[0], "   " * clf_layer[0] + clf[1]])
             if(clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
@@ -2226,8 +2226,8 @@ class RposMain(wx.Frame):
         event.Skip()
 
     def showAuthor(self, event):
-        self.showAuthor = ShowAuthor(self, wx.ID_ANY, self.db)
-        self.showAuthor.Show()
+        self.ShowAuthor = ShowAuthor(self, wx.ID_ANY, self.db)
+        self.ShowAuthor.Show()
 
     def editAuthor(self, event):
         self.EditAuthor = EditAuthor(self, wx.ID_ANY, self.db)
