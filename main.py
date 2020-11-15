@@ -1956,6 +1956,7 @@ class RposMain(wx.Frame):
 
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.paper_grid.CreateGrid(1, 7)
+        self.paper_grid.SetRowLabelSize(31)
         self.paper_grid.SetColLabelSize(25)
         self.paper_grid.EnableEditing(0)
         self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -1990,6 +1991,7 @@ class RposMain(wx.Frame):
 
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
+        self.author_grid.SetRowLabelSize(31)
         self.author_grid.SetColLabelSize(25)
         self.author_grid.EnableEditing(0)
         self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2015,6 +2017,7 @@ class RposMain(wx.Frame):
 
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
+        self.affiliation_grid.SetRowLabelSize(31)
         self.affiliation_grid.SetColLabelSize(25)
         self.affiliation_grid.EnableEditing(0)
         self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
