@@ -39,7 +39,7 @@ class RegisterPaper(wx.Frame):
         # begin wxGlade: RegisterPaper.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((680, 549))
+        self.SetSize((606, 549))
         self.SetTitle("rpos : Register Paper")
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
@@ -59,7 +59,7 @@ class RegisterPaper(wx.Frame):
         label_1.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_10.Add(label_1, 0, wx.ALL, 3)
 
-        self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.bibtex_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
         self.bibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_10.Add(self.bibtex_txt, 12, wx.ALL | wx.EXPAND, 2)
 
@@ -224,7 +224,7 @@ class RegisterPaper(wx.Frame):
         self.GetParent().paper_grid.SetCellValue(row_len, 5, paper[8])
         self.GetParent().paper_grid.SetCellValue(row_len, 6, paper[9])
 
-        #--- Update Paper Grid ---#
+        #--- Update Author Grid ---#
         for registered_author in registered_authors:
             row_len = self.GetParent().author_grid.GetNumberRows()
             self.GetParent().author_grid.AppendRows()
@@ -274,7 +274,7 @@ class ShowPaper(wx.Frame):
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((677, 559))
+        self.SetSize((679, 559))
         self.SetTitle("rpos : Show Paper")
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
@@ -408,7 +408,11 @@ class ShowPaper(wx.Frame):
         sizer_6.Add(bibtex_lbl, 0, wx.ALL, 2)
 
         self.copyBibtex_btn = wx.Button(self.panel_1, wx.ID_ANY, "Copy Bibtex")
-        sizer_6.Add(self.copyBibtex_btn, 0, wx.ALL, 2)
+        sizer_6.Add(self.copyBibtex_btn, 0, wx.ALL | wx.EXPAND, 2)
+
+        self.copiedFlag_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
+        self.copiedFlag_lbl.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_6.Add(self.copiedFlag_lbl, 0, wx.ALIGN_BOTTOM | wx.ALL, 4)
 
         self.panel_2 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
         self.panel_2.SetScrollRate(10, 10)
@@ -447,6 +451,7 @@ class ShowPaper(wx.Frame):
         self.Layout()
         self.Centre()
 
+        self.Bind(wx.EVT_BUTTON, self.paperCopyBibtex, self.copyBibtex_btn)
         self.Bind(wx.EVT_BUTTON, self.openFile, self.openFile_btn)
         self.Bind(wx.EVT_BUTTON, self.editPaper, self.editPaper_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
@@ -462,6 +467,10 @@ class ShowPaper(wx.Frame):
 
     def closeWindow(self, event):  # wxGlade: ShowPaper.<event_handler>
         self.Close()
+
+    def paperCopyBibtex(self, event):  # wxGlade: ShowPaper.<event_handler>
+        pyperclip.copy(self.GetParent().selected_paper[4])
+        self.copiedFlag_lbl.SetLabel("Copied")
 # end of class ShowPaper
 
 
@@ -661,6 +670,9 @@ class EditPaper(wx.Frame):
             doi=doi,
             isread=isread
         )
+        if(paper == 0):
+            wx.MessageBox(u'処理に失敗しました\n変更を中断しました', u'Paper Update Failed', wx.ICON_ERROR)
+            return
 
         #--- Attach Classification to Paper ---#
         c_m = ClassificationManagement(self.db)
@@ -1944,7 +1956,6 @@ class RposMain(wx.Frame):
 
         self.paper_grid = wx.grid.Grid(self.papers_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.paper_grid.CreateGrid(1, 7)
-        self.paper_grid.SetRowLabelSize(30)
         self.paper_grid.SetColLabelSize(25)
         self.paper_grid.EnableEditing(0)
         self.paper_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -1979,7 +1990,6 @@ class RposMain(wx.Frame):
 
         self.author_grid = wx.grid.Grid(self.authors_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.author_grid.CreateGrid(1, 4)
-        self.author_grid.SetRowLabelSize(30)
         self.author_grid.SetColLabelSize(25)
         self.author_grid.EnableEditing(0)
         self.author_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2005,7 +2015,6 @@ class RposMain(wx.Frame):
 
         self.affiliation_grid = wx.grid.Grid(self.affiliations_ntbk_pnl, wx.ID_ANY, size=(1, 1))
         self.affiliation_grid.CreateGrid(1, 2)
-        self.affiliation_grid.SetRowLabelSize(30)
         self.affiliation_grid.SetColLabelSize(25)
         self.affiliation_grid.EnableEditing(0)
         self.affiliation_grid.SetLabelBackgroundColour(wx.Colour(245, 255, 244))
@@ -2137,7 +2146,7 @@ class RposMain(wx.Frame):
         filepath = self.selected_paper[3]
         if(filepath != None and os.path.isfile(filepath)):
             if(" " in filepath):
-                os.system('"' + filepath + '"')
+                subprocess.Popen(r'"{}"'.format(filepath), shell=True)
             else:
                 subprocess.Popen(['start', filepath], shell=True)
         else:
