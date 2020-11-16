@@ -70,7 +70,7 @@ class RegisterPaper(wx.Frame):
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(description_lbl, 3, wx.ALL, 2)
 
-        self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.description_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
         self.description_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(self.description_txt, 12, wx.ALL | wx.EXPAND, 2)
 
@@ -104,14 +104,14 @@ class RegisterPaper(wx.Frame):
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.isread_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["Not Yet", "Done"], style=wx.CB_DROPDOWN)
+        self.isread_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["Not Yet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.isread_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.isread_cmb.SetSelection(0)
         grid_sizer_1.Add(self.isread_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         self.clf_btn = wx.Button(self.panel_1, wx.ID_ANY, "Classification")
         self.clf_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.clf_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         self.clf_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "")
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -373,13 +373,14 @@ class ShowPaper(wx.Frame):
         sizer_1.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 4)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
-        grid_sizer_2.Add(sizer_4, 1, 0, 0)
+        grid_sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
 
         desc_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Description")
         desc_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(desc_lbl, 0, wx.ALL, 2)
 
-        self.panel_3 = wx.Panel(self.panel_1, wx.ID_ANY)
+        self.panel_3 = wx.ScrolledWindow(self.panel_1, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
+        self.panel_3.SetScrollRate(10, 10)
         sizer_4.Add(self.panel_3, 1, wx.EXPAND, 0)
 
         sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -388,7 +389,7 @@ class ShowPaper(wx.Frame):
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             desc_show_lbl.SetLabel(self.GetParent().selected_paper[6])
-        sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
+        sizer_2.Add(desc_show_lbl, 2, wx.ALL, 2)
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_2.Add(sizer_10, 1, wx.EXPAND, 0)
@@ -507,7 +508,7 @@ class EditPaper(wx.Frame):
         description_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_4.Add(description_lbl, 0, wx.ALL, 3)
 
-        self.description_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.description_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
         self.description_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[6] != None):
             self.description_txt.SetValue(self.GetParent().selected_paper[6])
@@ -529,12 +530,12 @@ class EditPaper(wx.Frame):
         self.fileBibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(self.GetParent().selected_paper[3] != None):
             self.fileBibtex_txt.SetValue(self.GetParent().selected_paper[3])
-        sizer_11.Add(self.fileBibtex_txt, 13, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        sizer_11.Add(self.fileBibtex_txt, 13, wx.ALL | wx.EXPAND, 3)
 
         self.fileselect_btn = wx.Button(self.panel_4, wx.ID_ANY, u"変更\n")
         self.fileselect_btn.SetMinSize((68, 25))
         self.fileselect_btn.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_11.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.SHAPED, 1)
+        sizer_11.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND | wx.SHAPED, 1)
 
         doi_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "DOI", style=wx.ALIGN_CENTER_HORIZONTAL)
         doi_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -550,7 +551,7 @@ class EditPaper(wx.Frame):
         self.isread_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.isread_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.isread_cmb = wx.ComboBox(self.panel_4, wx.ID_ANY, choices=["NotYet", "Done"], style=wx.CB_DROPDOWN)
+        self.isread_cmb = wx.ComboBox(self.panel_4, wx.ID_ANY, choices=["NotYet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.isread_cmb.SetMinSize((80, 27))
         self.isread_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.isread_cmb.SetSelection(self.GetParent().selected_paper[7])
@@ -558,7 +559,7 @@ class EditPaper(wx.Frame):
 
         self.clf_btn = wx.Button(self.panel_4, wx.ID_ANY, "Classification")
         self.clf_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        grid_sizer_1.Add(self.clf_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
         self.clf_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         self.clf_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
@@ -887,8 +888,8 @@ class EditAuthor(wx.Frame):
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_author[1] != None):
-            self.name_txt.SetValue(self.GetParent().selected_author[1])
+        self.name_txt.SetFocus()
+        self.name_txt.AppendText(self.GetParent().selected_author[1])
         sizer_3.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -900,6 +901,7 @@ class EditAuthor(wx.Frame):
 
         self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.desc_txt.SetFocus()
         if(self.GetParent().selected_author[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_author[2])
         sizer_4.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
@@ -911,7 +913,7 @@ class EditAuthor(wx.Frame):
         affiliation_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_6.Add(affiliation_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.affiliation_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
+        self.affiliation_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.affiliation_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         af = Affiliation(self.db)
         affs = af.All()
@@ -919,7 +921,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i + 1)
+                self.affiliation_cmb.SetSelection(i+1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
@@ -951,11 +953,10 @@ class EditAuthor(wx.Frame):
         aff = a.affiliation(self.GetParent().selected_author[0])
         papers = a.papers(self.GetParent().selected_author[0])
         row_len = self.GetParent().row
-        self.GetParent().author_grid.SetCellValue(row_len, 0, self.GetParent().selected_author[1])
+        self.GetParent().author_grid.SetCellValue(row_len, 0, name)
         self.GetParent().author_grid.SetCellValue(row_len, 1, aff[1])
         self.GetParent().author_grid.SetCellValue(row_len, 2, str(len(papers)))
-        self.GetParent().author_grid.SetCellValue(row_len, 3, self.GetParent().selected_author[2] if(self.GetParent().selected_author[2] != None) else "")
-        self.GetParent().resetNarrowing(event)
+        self.GetParent().author_grid.SetCellValue(row_len, 3, desc if(desc != None) else "")
         self.Close()
 # end of class EditAuthor
 
@@ -1003,15 +1004,15 @@ class RegisterClassification(wx.Frame):
         parent_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
+        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.parent_cmb.Append("")
         clfs = self.GetParent().getClfWithSubLayer()
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(clf[1] == self.GetParent().selected_clf[1]):
-                self.parent_cmb.SetSelection(i + 1)
-        grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
+                self.parent_cmb.SetSelection(i+1)
+        grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
         sizer_2.Add(sizer_4, 4, wx.EXPAND, 0)
@@ -1189,6 +1190,7 @@ class EditClassification(wx.Frame):
 
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.name_txt.SetFocus()
         if(self.GetParent().selected_clf[1] != None):
             self.name_txt.SetValue(self.GetParent().selected_clf[1])
         grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
@@ -1199,6 +1201,7 @@ class EditClassification(wx.Frame):
 
         self.sort_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.sort_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.sort_txt.SetFocus()
         self.sort_txt.SetValue(str(self.GetParent().selected_clf[3]))
         grid_sizer_1.Add(self.sort_txt, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
 
@@ -1206,7 +1209,7 @@ class EditClassification(wx.Frame):
         parent_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(parent_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
 
-        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN)
+        self.parent_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.parent_cmb.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         c = Classification(self.db)
         parent_clf = c.parentclasses(self.GetParent().selected_clf[0])
@@ -1215,7 +1218,7 @@ class EditClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(parent_clf != [] and clf[1] == parent_clf[0][1]):
-                self.parent_cmb.SetSelection(i + 1)
+                self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
@@ -1227,6 +1230,7 @@ class EditClassification(wx.Frame):
 
         self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.desc_txt.SetFocus()
         if(self.GetParent().selected_clf[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_clf[2])
         sizer_3.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
@@ -1305,7 +1309,7 @@ class AttachClassification(wx.Frame):
         for i, clf_layer in enumerate(clfs_layer):
             clf_buf = c.where(name=clf_layer[1])
             clf = clf_buf[0]
-            self.listctrl.Append([" ", clf[0], "   " * clf_layer[0] + clf[1]])
+            self.listctrl.Append([" ",  clf[0], "   "*clf_layer[0] + clf[1]])
             if(clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
@@ -1527,6 +1531,7 @@ class EditAffiliation(wx.Frame):
 
         self.name_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.name_txt.SetFocus()
         self.name_txt.SetValue(self.GetParent().selected_aff[1] if(self.GetParent().selected_aff[1]) else "")
         grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
@@ -1536,6 +1541,7 @@ class EditAffiliation(wx.Frame):
 
         self.attribute_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.attribute_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.attribute_txt.SetFocus()
         self.attribute_txt.SetValue(self.GetParent().selected_aff[3] if(self.GetParent().selected_aff[3]) else "")
         grid_sizer_1.Add(self.attribute_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
@@ -1553,6 +1559,7 @@ class EditAffiliation(wx.Frame):
         sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
 
         self.desc_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self.desc_txt.SetFocus()
         self.desc_txt.SetValue(self.GetParent().selected_aff[2] if(self.GetParent().selected_aff[2]) else "")
         sizer_2.Add(self.desc_txt, 1, wx.EXPAND, 0)
 
@@ -1677,7 +1684,7 @@ class WelcomePage(wx.Frame):
         selectDB_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_3.Add(selectDB_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
 
-        self.selectDB_dbx = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN)
+        self.selectDB_dbx = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.selectDB_dbx.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         if(not(os.path.exists('./resource'))):
             os.mkdir('./resource')
@@ -1686,6 +1693,8 @@ class WelcomePage(wx.Frame):
         self.dbs = os.listdir('./resource/db')
         for db in self.dbs:
             self.selectDB_dbx.Append(db)
+        if(len(self.dbs) >= 1):
+            self.selectDB_dbx.SetSelection(0)
         sizer_3.Add(self.selectDB_dbx, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
 
         self.selectDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Open")
@@ -1719,7 +1728,7 @@ class WelcomePage(wx.Frame):
         if(self.selectDB_dbx.GetSelection() == -1):
             wx.MessageBox("データベースを選択してください")
             return
-        db_name = './resource/db/' + str(self.dbs[self.selectDB_dbx.GetSelection() - 1])
+        db_name = './resource/db/' + str(self.dbs[self.selectDB_dbx.GetSelection()])
         self.Close()
         self.RposMain = RposMain(None, wx.ID_ANY, db_name)
         self.RposMain.Show()
@@ -1907,7 +1916,7 @@ class RposMain(wx.Frame):
         narClf_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_14.Add(narClf_lbl, 0, 0, 0)
 
-        self.narClf_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN)
+        self.narClf_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.narClf_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         clfs = self.getClfWithSubLayer()
         for clf in clfs:
@@ -1921,7 +1930,7 @@ class RposMain(wx.Frame):
         narAff_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_15.Add(narAff_lbl, 0, 0, 0)
 
-        self.narAff_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN)
+        self.narAff_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.narAff_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         af = Affiliation(self.db)
         affs = af.All()
@@ -1936,7 +1945,7 @@ class RposMain(wx.Frame):
         narRead_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_16.Add(narRead_lbl, 0, 0, 0)
 
-        self.narRead_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN)
+        self.narRead_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.narRead_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_16.Add(self.narRead_cmb, 0, wx.LEFT, 20)
 
