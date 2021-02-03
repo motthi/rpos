@@ -1893,6 +1893,7 @@ class RposMain(wx.Frame):
         sizer_12.Add(narTitle_lbl, 0, 0, 0)
 
         self.narTitle_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "")
+        self.narTitle_txtCtrl.SetMinSize((110, 23))
         self.narTitle_txtCtrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.narTitle_txtCtrl.ShowCancelButton(True)
         sizer_12.Add(self.narTitle_txtCtrl, 0, wx.LEFT, 20)
@@ -1905,6 +1906,7 @@ class RposMain(wx.Frame):
         sizer_13.Add(narAuthor_lbl, 0, 0, 0)
 
         self.narAuthor_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "")
+        self.narAuthor_txtCtrl.SetMinSize((130, 23))
         self.narAuthor_txtCtrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.narAuthor_txtCtrl.ShowCancelButton(True)
         sizer_13.Add(self.narAuthor_txtCtrl, 0, wx.LEFT, 20)
@@ -1946,10 +1948,12 @@ class RposMain(wx.Frame):
         sizer_16.Add(narRead_lbl, 0, 0, 0)
 
         self.narRead_cmb = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.narRead_cmb.SetMinSize((50, 23))
         self.narRead_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_16.Add(self.narRead_cmb, 0, wx.LEFT, 20)
 
-        self.detailNarrowing_btn = wx.Button(self.panel_1, wx.ID_ANY, u"リセット")
+        self.detailNarrowing_btn = wx.Button(self.panel_1, wx.ID_ANY, "Reset")
+        self.detailNarrowing_btn.SetMinSize((55, 30))
         self.detailNarrowing_btn.SetBackgroundColour(wx.Colour(217, 250, 255))
         self.detailNarrowing_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_11.Add(self.detailNarrowing_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
