@@ -532,7 +532,7 @@ class EditPaper(wx.Frame):
             self.fileBibtex_txt.SetValue(self.GetParent().selected_paper[3])
         sizer_11.Add(self.fileBibtex_txt, 13, wx.ALL | wx.EXPAND, 3)
 
-        self.fileselect_btn = wx.Button(self.panel_4, wx.ID_ANY, u"変更\n")
+        self.fileselect_btn = wx.Button(self.panel_4, wx.ID_ANY, "Edit")
         self.fileselect_btn.SetMinSize((68, 25))
         self.fileselect_btn.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_11.Add(self.fileselect_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND | wx.SHAPED, 1)
@@ -573,7 +573,7 @@ class EditPaper(wx.Frame):
         self.aff_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         grid_sizer_1.Add(self.aff_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
-        self.editPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, u"変更")
+        self.editPaper_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
         self.editPaper_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_1.Add(self.editPaper_btn, 0, wx.ALIGN_RIGHT | wx.ALL, 7)
 
@@ -921,7 +921,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i+1)
+                self.affiliation_cmb.SetSelection(i + 1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
@@ -1011,7 +1011,7 @@ class RegisterClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(clf[1] == self.GetParent().selected_clf[1] and self.GetParent().parent is not None):
-                self.parent_cmb.SetSelection(i+1)
+                self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -1218,7 +1218,7 @@ class EditClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(parent_clf != [] and clf[1] == parent_clf[0][1]):
-                self.parent_cmb.SetSelection(i+1)
+                self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
@@ -1309,7 +1309,7 @@ class AttachClassification(wx.Frame):
         for i, clf_layer in enumerate(clfs_layer):
             clf_buf = c.where(name=clf_layer[1])
             clf = clf_buf[0]
-            self.listctrl.Append([" ",  clf[0], "   "*clf_layer[0] + clf[1]])
+            self.listctrl.Append([" ", clf[0], "   " * clf_layer[0] + clf[1]])
             if(clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
@@ -2117,6 +2117,10 @@ class RposMain(wx.Frame):
             self.paper_grid.SetCellValue(i, 4, affs)  # Affiliationn
             self.paper_grid.SetCellValue(i, 5, paper[8])
             self.paper_grid.SetCellValue(i, 6, paper[9])
+            if(paper[7] == 0):
+                for col in range(self.paper_grid.GetNumberCols()):
+                    self.paper_grid.SetCellBackgroundColour(i, col, wx.Colour('#ffffd0'))
+        self.paper_grid.ForceRefresh()
 
     def registerPaper(self, event):  # wxGlade: RposMain.<event_handler>
         self.RegisterPaper = RegisterPaper(self, wx.ID_ANY, self.db)
