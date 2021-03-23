@@ -712,6 +712,14 @@ class EditPaper(wx.Frame):
                 affs += aff[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
 
+        if(paper[7] == 0):
+            for col in range(self.GetParent().paper_grid.GetNumberCols()):
+                self.GetParent().paper_grid.SetCellBackgroundColour(row_len, col, wx.Colour('#ffffd0'))
+        else:
+            for col in range(self.GetParent().paper_grid.GetNumberCols()):
+                self.GetParent().paper_grid.SetCellBackgroundColour(row_len, col, wx.Colour('#ffffff'))
+        self.GetParent().paper_grid.ForceRefresh()
+
     def selectFile(self, event):  # wxGlade: EditPaper.<event_handler>
         self.filedialog.ShowModal()
         self.fileBibtex_txt.SetValue(self.filedialog.GetPath())
