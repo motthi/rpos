@@ -929,7 +929,7 @@ class EditAuthor(wx.Frame):
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
             if(self.GetParent().selected_author[3] == aff[0]):
-                self.affiliation_cmb.SetSelection(i + 1)
+                self.affiliation_cmb.SetSelection(i+1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         self.edit_btn = wx.Button(self.panel_1, wx.ID_ANY, "Update")
@@ -1019,7 +1019,7 @@ class RegisterClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(clf[1] == self.GetParent().selected_clf[1] and self.GetParent().parent is not None):
-                self.parent_cmb.SetSelection(i + 1)
+                self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -1226,7 +1226,7 @@ class EditClassification(wx.Frame):
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
             if(parent_clf != [] and clf[1] == parent_clf[0][1]):
-                self.parent_cmb.SetSelection(i + 1)
+                self.parent_cmb.SetSelection(i+1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
@@ -1317,7 +1317,7 @@ class AttachClassification(wx.Frame):
         for i, clf_layer in enumerate(clfs_layer):
             clf_buf = c.where(name=clf_layer[1])
             clf = clf_buf[0]
-            self.listctrl.Append([" ", clf[0], "   " * clf_layer[0] + clf[1]])
+            self.listctrl.Append([" ",  clf[0], "   "*clf_layer[0] + clf[1]])
             if(clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
@@ -1900,7 +1900,7 @@ class RposMain(wx.Frame):
         narTitle_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_12.Add(narTitle_lbl, 0, 0, 0)
 
-        self.narTitle_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "")
+        self.narTitle_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
         self.narTitle_txtCtrl.SetMinSize((110, 23))
         self.narTitle_txtCtrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.narTitle_txtCtrl.ShowCancelButton(True)
@@ -1913,7 +1913,7 @@ class RposMain(wx.Frame):
         narAuthor_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         sizer_13.Add(narAuthor_lbl, 0, 0, 0)
 
-        self.narAuthor_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "")
+        self.narAuthor_txtCtrl = wx.SearchCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
         self.narAuthor_txtCtrl.SetMinSize((130, 23))
         self.narAuthor_txtCtrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.narAuthor_txtCtrl.ShowCancelButton(True)
@@ -2074,8 +2074,8 @@ class RposMain(wx.Frame):
         grid_sizer_1.AddGrowableCol(0, 1)
         grid_sizer_1.AddGrowableCol(1, 1)
 
-        self.Bind(wx.EVT_TEXT, self.narrowPaper, self.narTitle_txtCtrl)
-        self.Bind(wx.EVT_TEXT, self.narrowPaper, self.narAuthor_txtCtrl)
+        self.Bind(wx.EVT_TEXT_ENTER, self.narrowPaper, self.narTitle_txtCtrl)
+        self.Bind(wx.EVT_TEXT_ENTER, self.narrowPaper, self.narAuthor_txtCtrl)
         self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.narClf_cmb)
         self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.narAff_cmb)
         self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.narRead_cmb)
