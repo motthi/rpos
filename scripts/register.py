@@ -1,4 +1,7 @@
-from . import*
+import sys
+sys.path.append("./scripts")
+import re
+from Database import Paper, Author, AuthorManagement
 
 
 def registerByBibtex(db_name, bibtex, file, description=None, doi=None, isread=0):
@@ -60,6 +63,7 @@ def updateByBibtex(db_name, id, bibtex, file, description=None, doi=None, isread
         paper_id = inserted_paper[0][0]
 
         #--- Delete Old Relation ---#
+        inserted_authors = []
         authors_man = a_management.where(paper_id=paper_id)
         for author_man in authors_man:
             a_management.deleteByID(author_man[0])
@@ -81,7 +85,7 @@ def updateByBibtex(db_name, id, bibtex, file, description=None, doi=None, isread
         return 0
 
 
-def getPaperInfoFromBibtex(pap, file=None, doi=None, description=None, isread=0):
+def getPaperInfoFromBibtex(pap: str, file=None, doi=None, description=None, isread=0):
     if(pap.count("{") != pap.count("}") or pap.count('"') != pap.count('"')):
         return 0, 0
     bib = pap
@@ -91,8 +95,13 @@ def getPaperInfoFromBibtex(pap, file=None, doi=None, description=None, isread=0)
     authors = []
     year = ""
     journal = ""
+
+    match_title = '[^a-zA-Z*]title'
+    match_year = 'year.*?=.*?'
+
     if(rows == [] or rows == None):
-        num = bib.find('title')
+        m = re.search(match_title, bib)
+        num = m.start()
         numberCurly = 0
         for i in range(num, len(bib)):
             if(bib[i] == '"'):
@@ -103,8 +112,9 @@ def getPaperInfoFromBibtex(pap, file=None, doi=None, description=None, isread=0)
             if(numberCurly >= 1):
                 title += bib[i]
 
-        num = bib.find('year=') if(bib.find('year=') != -1) else bib.find('year =')
-        if(num != -1):
+        m = re.search(match_year, bib)
+        if m is not None:
+            num = m.start()
             numberCurly = 0
             for i in range(num, len(bib)):
                 if(bib[i] == '"'):
@@ -154,7 +164,8 @@ def getPaperInfoFromBibtex(pap, file=None, doi=None, description=None, isread=0)
             authorName = authorName.strip()
             authors.append(Author.getDicFormat(authorName))
     else:
-        num = bib.find('title')
+        m = re.search(match_title, bib)
+        num = m.start()
         numberCurly = 0
         for i in range(num, len(bib)):
             if(bib[i] == "{"):
@@ -167,8 +178,9 @@ def getPaperInfoFromBibtex(pap, file=None, doi=None, description=None, isread=0)
             if(numberCurly >= 1):
                 title += bib[i]
 
-        num = bib.find('year=') if(bib.find('year=') != -1) else bib.find('year =')
-        if(num != -1):
+        m = re.search(match_year, bib)
+        if m is not None:
+            num = m.start()
             numberCurly = 0
             for i in range(num, len(bib)):
                 if(bib[i] == "{"):
