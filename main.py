@@ -1852,6 +1852,8 @@ class RposMain(wx.Frame):
         wxglade_tmp_menu = wx.Menu()
         item = wxglade_tmp_menu.Append(wx.ID_ANY, "Open", "")
         self.Bind(wx.EVT_MENU, self.openDatabase, item)
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, "Open RPOS location", "")
+        self.Bind(wx.EVT_MENU, self.openRposLocation, item)
         item = wxglade_tmp_menu.Append(wx.ID_ANY, "Close", "")
         self.Bind(wx.EVT_MENU, self.closeDatabase, item)
         item = wxglade_tmp_menu.Append(wx.ID_ANY, "Exit", "")
@@ -2196,6 +2198,13 @@ class RposMain(wx.Frame):
     def paperCopyBibtex(self, event):
         pyperclip.copy(self.selected_paper[4])
 
+    def paperCopyFile(self, event):
+        filepath = self.selected_paper[3]
+        if (filepath != None and os.path.isfile(filepath)):
+            shutil.copy2(filepath, "./")
+        else:
+            msg = wx.MessageBox(u'File not found', u'File Not Found', wx.ICON_ERROR)
+
     def narrowPaper(self, event):  # wxGlade: RposMain.<event_handler>
         narTitle = self.narTitle_txtCtrl.GetValue()
         narAuthor = self.narAuthor_txtCtrl.GetValue()
@@ -2457,13 +2466,15 @@ class RposMain(wx.Frame):
         menu = wx.Menu()
         popupRegister = menu.Append(-1, 'Register New Paper')
         popupOpen = menu.Append(-1, 'Open PDF File')
-        popupCopy = menu.Append(-1, 'Copy Bibtex')
+        popupCopyBib = menu.Append(-1, 'Copy Bibtex')
+        popupCopyFile = menu.Append(-1, 'Copy File')
         popupShow = menu.Append(-1, 'Show')
         popupEdit = menu.Append(-1, 'Edit')
         popupDelete = menu.Append(-1, 'Delete')
         self.Bind(wx.EVT_MENU, self.registerPaper, popupRegister)
         self.Bind(wx.EVT_MENU, self.paperFileOpen, popupOpen)
-        self.Bind(wx.EVT_MENU, self.paperCopyBibtex, popupCopy)
+        self.Bind(wx.EVT_MENU, self.paperCopyBibtex, popupCopyBib)
+        self.Bind(wx.EVT_MENU, self.paperCopyFile, popupCopyFile)
         self.Bind(wx.EVT_MENU, self.showPaper, popupShow)
         self.Bind(wx.EVT_MENU, self.editPaper, popupEdit)
         self.Bind(wx.EVT_MENU, self.deletePaper, popupDelete)
@@ -2677,6 +2688,9 @@ class RposMain(wx.Frame):
     def openDatabase(self, event):  # wxGlade: RposMain.<event_handler>
         welcomepage = WelcomePage(None, wx.ID_ANY, "")
         welcomepage.Show()
+
+    def openRposLocation(self, event):
+        os.startfile(os.path.abspath(os.path.dirname(__file__)))
 
     def closeDatabase(self, event):  # wxGlade: RposMain.<event_handler>
         self.Close()
