@@ -196,7 +196,6 @@ class WelcomePage(wx.Frame):
 
 class RposMain(wx.Frame):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: RposMain.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
         self.db = args[2]
         wx.Frame.__init__(self, *args, **kwds)
@@ -341,7 +340,6 @@ class RposMain(wx.Frame):
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_RIGHT_CLICK, self.affGridRightClick, self.aff_grid)
         self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.affGridLeftClick, self.aff_grid)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
-        # end wxGlade
 
     def createMenuBar(self):
         self.rposmain_menubar = wx.MenuBar()
@@ -478,11 +476,11 @@ class RposMain(wx.Frame):
                     self.paper_grid.SetCellBackgroundColour(i, col, wx.Colour('#ffffd0'))
         self.paper_grid.ForceRefresh()
 
-    def registerPaper(self, event):  # wxGlade: RposMain.<event_handler>
+    def registerPaper(self, event):
         self.RegisterPaper = RegisterPaper(self, wx.ID_ANY, self.db)
         self.RegisterPaper.Show()
 
-    def showPaper(self, event):  # wxGlade: RposMain.<event_handler>
+    def showPaper(self, event):
         self.ShowPaper = ShowPaper(self, wx.ID_ANY, self.db)
         self.ShowPaper.Show()
 
@@ -547,7 +545,7 @@ class RposMain(wx.Frame):
         else:
             msg = wx.MessageBox(u'File not found', u'File Not Found', wx.ICON_ERROR)
 
-    def narrowPaper(self, event):  # wxGlade: RposMain.<event_handler>
+    def narrowPaper(self, event):
         title = self.title_txt_ctrl.GetValue()
         auth = self.author_txt_ctrl.GetValue()
         clf = self.clf_cmb.GetValue().strip()
@@ -602,7 +600,7 @@ class RposMain(wx.Frame):
             self.auth_grid.SetCellValue(i, 2, str(len(papers)))
             self.auth_grid.SetCellValue(i, 3, author[2] if author[2] != None else "")
 
-    def registerAuthor(self, event):  # wxGlade: RposMain.<event_handler>
+    def registerAuthor(self, event):
         event.Skip()
 
     def showAuthor(self, event):
@@ -647,12 +645,12 @@ class RposMain(wx.Frame):
                 self.getAndShowSubClf(c, root, clf)  # Recursive Function
         self.clf_tree_ctrl.Expand(root)
 
-    def registerClassification(self, event):  # wxGlade: RposMain.<event_handler>
+    def registerClassification(self, event):
         self.parent = None
         self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
         self.createClf.Show()
 
-    def registerSubClassification(self, event):  # wxGlade: RposMain.<event_handler>
+    def registerSubClassification(self, event):
         self.parent = self.selected_clf
         self.createClf = RegisterClassification(self, wx.ID_ANY, self.db)
         self.createClf.Show()
@@ -752,7 +750,7 @@ class RposMain(wx.Frame):
             self.aff_grid.SetCellValue(i, 0, aff[1])
             self.aff_grid.SetCellValue(i, 1, aff[3])
 
-    def registerAffiliation(self, event):  # wxGlade: RposMain.<event_handler>
+    def registerAffiliation(self, event):
         registeraffiliation = RegisterAffiliation(self, wx.ID_ANY, self.db)
         registeraffiliation.Show()
 
@@ -779,17 +777,17 @@ class RposMain(wx.Frame):
             af_m.deleteByID(aff_man[0])
 
     ### --- Event ---###
-    def paperGridLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def paperGridLeftClick(self, event):
         self.selectedPaper = self.paper_grid.GetSelectedCells()
 
-    def paperGridDoubleLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def paperGridDoubleLeftClick(self, event):
         row = event.GetRow()
         selected_paper_title = self.paper_grid.GetCellValue(row, 0)
         selected_papers = Paper(self.db).where(title=selected_paper_title)
         self.selected_paper = selected_papers[0]
         self.openPaper(event)
 
-    def paperGridRightClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def paperGridRightClick(self, event):
         # --- Extract selected Paper ---#
         self.row = event.GetRow()
         selected_paper_title = self.paper_grid.GetCellValue(self.row, 0)
@@ -808,7 +806,7 @@ class RposMain(wx.Frame):
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def pgridLabelLeftClicked(self, event):  # wxGlade: RposMain.<event_handler>
+    def pgridLabelLeftClicked(self, event):
         """Sort Grid
 
         Args:
@@ -881,10 +879,10 @@ class RposMain(wx.Frame):
 
         self.narrowPaper(event)
 
-    def authGridLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def authGridLeftClick(self, event):
         event.Skip()
 
-    def authGridRightClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def authGridRightClick(self, event):
         self.row = event.GetRow()
         selected_author_name = self.auth_grid.GetCellValue(self.row, 0)
         selected_authors = Author(self.db).where(name=selected_author_name)
@@ -899,10 +897,10 @@ class RposMain(wx.Frame):
         self.auth_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def affGridLeftClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def affGridLeftClick(self, event):
         event.Skip()
 
-    def affGridRightClick(self, event):  # wxGlade: RposMain.<event_handler>
+    def affGridRightClick(self, event):
         self.row = event.GetRow()
         selected_aff_name = self.aff_grid.GetCellValue(self.row, 0)
         selected_affs = Affiliation(self.db).where(name=selected_aff_name)
@@ -917,7 +915,7 @@ class RposMain(wx.Frame):
         self.aff_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def treeCtrlActivated(self, event):  # wxGlade: RposMain.<event_handler>
+    def treeCtrlActivated(self, event):
         selected_classification = Classification(self.db).where(name=self.clf_tree_ctrl.GetItemText(event.GetItem()))
         self.selected_clf_layer = self.getLayer(0, event.GetItem())
         if selected_classification == []:
@@ -926,7 +924,7 @@ class RposMain(wx.Frame):
             self.selected_clf = selected_classification[0]
         self.narrowClassification(event)
 
-    def treeCtrlRightClicked(self, event):  # wxGlade: RposMain.<event_handler>
+    def treeCtrlRightClicked(self, event):
         c = Classification(self.db)
         selected_classification = Classification(self.db).where(name=self.clf_tree_ctrl.GetItemText(event.GetItem()))
         if selected_classification == []:
@@ -979,7 +977,7 @@ class RposMain(wx.Frame):
         narAff = af.where(name=aff)
         return af.papers(narAff[0][0])
 
-    def resetNarrowing(self, event):  # wxGlade: RposMain.<event_handler>
+    def resetNarrowing(self, event):
         self.title_txt_ctrl.SetValue("")
         self.author_txt_ctrl.SetValue("")
         self.clf_cmb.SetSelection(-1)
@@ -990,17 +988,17 @@ class RposMain(wx.Frame):
         self.indexPaper(p.All())
         self.indexAuthor(a.All())
 
-    def exitProgram(self, event):  # wxGlade: RposMain.<event_handler>
+    def exitProgram(self, event):
         self.Destroy()
 
-    def openDatabase(self, event):  # wxGlade: RposMain.<event_handler>
+    def openDatabase(self, event):
         welcomepage = WelcomePage(None, wx.ID_ANY, "")
         welcomepage.Show()
 
     def openRposLocation(self, event):
         os.startfile(os.path.abspath(os.path.dirname(__file__)))
 
-    def closeDatabase(self, event):  # wxGlade: RposMain.<event_handler>
+    def closeDatabase(self, event):
         self.Close()
         welcomepage = WelcomePage(None, wx.ID_ANY, "")
         welcomepage.Show()
