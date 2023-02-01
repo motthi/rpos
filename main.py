@@ -20,7 +20,7 @@ import shutil
 import pyperclip
 import subprocess
 import wx.lib.mixins.listctrl as listmix
-from scripts import*
+from scripts import *
 # end wxGlade
 
 
@@ -33,7 +33,7 @@ class MyApp(wx.App):
 # end of class MyApp
 
 
-###------ Paper ------###
+### ------ Paper ------###
 class RegisterPaper(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: RegisterPaper.__init__
@@ -155,12 +155,12 @@ class RegisterPaper(wx.Frame):
         isread = self.isread_cmb.GetSelection()
         description = self.description_txt.GetValue() if self.description_txt.GetValue() != "" else None
         doi = self.doi_txt.GetValue() if self.doi_txt.GetValue() != "" else None
-        if(selected_file == "" or selected_file == None):
+        if (selected_file == "" or selected_file == None):
             filepath = None
         else:
             filepath = './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
 
-        #--- Register Paper---#
+        # --- Register Paper---#
         [paper, registered_authors] = registerByBibtex(
             self.db,
             bibtex,
@@ -169,65 +169,65 @@ class RegisterPaper(wx.Frame):
             doi=doi,
             isread=isread
         )
-        if(paper == 0):
+        if (paper == 0):
             wx.MessageBox(u'処理に失敗しました\n登録を中断しました', u'Paper Register Failed', wx.ICON_ERROR)
             return
 
-        #--- Copy File ---#
-        if(os.path.isfile(selected_file)):
+        # --- Copy File ---#
+        if (os.path.isfile(selected_file)):
             shutil.copyfile(
                 selected_file,
                 './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
             )
         self.Close()
 
-        #--- Attach Classification to Paper ---#
+        # --- Attach Classification to Paper ---#
         c_m = ClassificationManagement(self.db)
         for clf_id in self.clfs_id:
             c_m.create(paper[0], clf_id)
 
-        #--- Attach Affiliation to Paper ---#
+        # --- Attach Affiliation to Paper ---#
         af_m = AffiliationManagement(self.db)
         for aff_id in self.affs_id:
             af_m.create(paper[0], aff_id)
 
-        #--- Update Paper Grid ---#
+        # --- Update Paper Grid ---#
         p = Paper(self.db)
         a = Author(self.db)
         row_len = self.GetParent().paper_grid.GetNumberRows()
         self.GetParent().paper_grid.AppendRows()
         self.GetParent().paper_grid.SetCellValue(row_len, 0, paper[1])
-        if(paper[2] != None):
+        if (paper[2] != None):
             self.GetParent().paper_grid.SetCellValue(row_len, 1, str(paper[2]))  # Year
         authors = ""
         clfs = ""
         affs = ""
-        if(p.authors(paper[0]) != None or p.authors(paper[0]) != []):
+        if (p.authors(paper[0]) != None or p.authors(paper[0]) != []):
             for author in p.authors(paper[0]):
                 authors += author[1] + "; "
             self.GetParent().paper_grid.SetCellValue(row_len, 2, authors)  # Author
-        if(p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
+        if (p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
             for clf in p.classifications(paper[0]):
                 clfs += clf[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 3, clfs)  # Classification
-        if(p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
+        if (p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
             for aff in p.affiliations(paper[0]):
                 affs += aff[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
         self.GetParent().paper_grid.SetCellValue(row_len, 5, paper[8])
         self.GetParent().paper_grid.SetCellValue(row_len, 6, paper[9])
-        if(paper[7] == 0):
+        if (paper[7] == 0):
             for col in range(self.GetParent().paper_grid.GetNumberCols()):
                 self.GetParent().paper_grid.SetCellBackgroundColour(row_len, col, wx.Colour('#ffffd0'))
         self.GetParent().paper_grid.ForceRefresh()
 
-        #--- Update Author Grid ---#
+        # --- Update Author Grid ---#
         for registered_author in registered_authors:
             row_len = self.GetParent().author_grid.GetNumberRows()
             self.GetParent().author_grid.AppendRows()
             self.GetParent().author_grid.SetCellValue(row_len, 0, registered_author[1])
             aff = a.affiliation(author[0])
-            if(aff != None):
+            if (aff != None):
                 self.GetParent().author_grid.SetCellValue(row_len, 1, aff[1])
             papers = a.papers(author[0])
             self.GetParent().author_grid.SetCellValue(row_len, 2, str(len(papers)))
@@ -294,7 +294,7 @@ class ShowPaper(wx.Frame):
         title_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         title_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         title_show_lbl.Wrap(400)
-        if(self.GetParent().selected_paper[1] != None):
+        if (self.GetParent().selected_paper[1] != None):
             title_show_lbl.SetLabel(self.GetParent().selected_paper[1])
         grid_sizer_1.Add(title_show_lbl, 0, wx.ALL, 2)
 
@@ -304,7 +304,7 @@ class ShowPaper(wx.Frame):
 
         year_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         year_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[2] != None):
+        if (self.GetParent().selected_paper[2] != None):
             year_show_lbl.SetLabel(str(self.GetParent().selected_paper[2]))
         grid_sizer_1.Add(year_show_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -329,7 +329,7 @@ class ShowPaper(wx.Frame):
 
         self.doi_show_link = wx.adv.HyperlinkCtrl(self.panel_4, wx.ID_ANY, "", "")
         self.doi_show_link.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[5] != None):
+        if (self.GetParent().selected_paper[5] != None):
             self.doi_show_link.SetLabel(self.GetParent().selected_paper[5])
             self.doi_show_link.SetURL(self.GetParent().selected_paper[5])
         grid_sizer_1.Add(self.doi_show_link, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -340,7 +340,7 @@ class ShowPaper(wx.Frame):
 
         isread_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         isread_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[7] == 0):
+        if (self.GetParent().selected_paper[7] == 0):
             isread_show_lbl.SetLabel("Not Yet")
         else:
             isread_show_lbl.SetLabel("Done")
@@ -391,7 +391,7 @@ class ShowPaper(wx.Frame):
 
         desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[6] != None):
+        if (self.GetParent().selected_paper[6] != None):
             desc_show_lbl.SetLabel(self.GetParent().selected_paper[6])
         sizer_2.Add(desc_show_lbl, 2, wx.ALL, 2)
 
@@ -499,7 +499,7 @@ class EditPaper(wx.Frame):
 
         self.bibtex_txt = wx.TextCtrl(self.panel_2, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
         self.bibtex_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[4] != None):
+        if (self.GetParent().selected_paper[4] != None):
             self.bibtex_txt.SetValue(self.GetParent().selected_paper[4])
         sizer_10.Add(self.bibtex_txt, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 2)
 
@@ -514,7 +514,7 @@ class EditPaper(wx.Frame):
 
         self.description_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE)
         self.description_txt.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[6] != None):
+        if (self.GetParent().selected_paper[6] != None):
             self.description_txt.SetValue(self.GetParent().selected_paper[6])
         sizer_4.Add(self.description_txt, 1, wx.ALL | wx.EXPAND | wx.FIXED_MINSIZE, 2)
 
@@ -532,7 +532,7 @@ class EditPaper(wx.Frame):
 
         self.fileBibtex_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.fileBibtex_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[3] != None):
+        if (self.GetParent().selected_paper[3] != None):
             self.fileBibtex_txt.SetValue(self.GetParent().selected_paper[3])
         sizer_11.Add(self.fileBibtex_txt, 13, wx.ALL | wx.EXPAND, 3)
 
@@ -547,7 +547,7 @@ class EditPaper(wx.Frame):
 
         self.doi_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.doi_txt.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_paper[5] != None):
+        if (self.GetParent().selected_paper[5] != None):
             self.doi_txt.SetValue(self.GetParent().selected_paper[5])
         grid_sizer_1.Add(self.doi_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
 
@@ -597,14 +597,14 @@ class EditPaper(wx.Frame):
 
         p = Paper(self.db)
 
-        #--- Show Classification ---#
+        # --- Show Classification ---#
         clfs = p.classifications(self.GetParent().selected_paper[0])
         self.clfs_id = []
         for clf in clfs:
             self.clfs_id.append(clf[0])
         self.indexClassifications()
 
-        #--- Show Affiliations ---#
+        # --- Show Affiliations ---#
         affs = p.affiliations(self.GetParent().selected_paper[0])
         self.affs_id = []
         for aff in affs:
@@ -624,14 +624,14 @@ class EditPaper(wx.Frame):
         description = self.description_txt.GetValue() if self.description_txt.GetValue() != "" else None
         doi = self.doi_txt.GetValue() if self.doi_txt.GetValue() != "" else None
 
-        #--- Set New File Path ---#
-        if(selected_file == "" or selected_file == None):
+        # --- Set New File Path ---#
+        if (selected_file == "" or selected_file == None):
             new_filepath = None
         else:
             new_filepath = './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
 
-        #--- Delete Old File ---#
-        if(
+        # --- Delete Old File ---#
+        if (
             self.GetParent().selected_paper[3] != None and  # 変更前のファイルがNULLではない
             self.GetParent().selected_paper[3] != new_filepath and  # 変更前のファイルと新しいファイルが同じではない
             os.path.isfile(self.GetParent().selected_paper[3])  # 変更前のファイルが存在する
@@ -642,7 +642,7 @@ class EditPaper(wx.Frame):
                     u'Paper Delete',
                     wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING
                 )
-                if(msg == wx.YES):
+                if (msg == wx.YES):
                     os.remove(self.GetParent().selected_paper[3])
                 else:
                     wx.MessageBox(u'ファイルを削除できません\n更新処理を中断しました', u'Could not Delete', wx.ICON_ERROR)
@@ -651,14 +651,14 @@ class EditPaper(wx.Frame):
                 wx.MessageBox(u'ファイルを削除できません\n更新処理を中断しました', u'Could not Delete', wx.ICON_ERROR)
                 return
 
-        #--- Copy File ---#
-        if(new_filepath != "" and new_filepath != None and not(os.path.isfile(new_filepath))):
+        # --- Copy File ---#
+        if (new_filepath != "" and new_filepath != None and not (os.path.isfile(new_filepath))):
             shutil.copyfile(
                 selected_file,
                 './resource/doc/' + os.path.splitext(os.path.basename(self.db))[0] + '/' + os.path.basename(selected_file)
             )
 
-        #--- Update Paper Information ---#
+        # --- Update Paper Information ---#
         paper = updateByBibtex(
             self.db,
             self.GetParent().selected_paper[0],
@@ -668,11 +668,11 @@ class EditPaper(wx.Frame):
             doi=doi,
             isread=isread
         )
-        if(paper == 0):
+        if (paper == 0):
             wx.MessageBox(u'処理に失敗しました\n変更を中断しました', u'Paper Update Failed', wx.ICON_ERROR)
             return
 
-        #--- Attach Classification to Paper ---#
+        # --- Attach Classification to Paper ---#
         c_m = ClassificationManagement(self.db)
         clfs_old = c_m.where(paper_id=self.GetParent().selected_paper[0])
         for clf in clfs_old:
@@ -680,7 +680,7 @@ class EditPaper(wx.Frame):
         for clf_id in self.clfs_id:
             c_m.create(self.GetParent().selected_paper[0], clf_id)
 
-        #--- Attach Affiliation to Paper ---#
+        # --- Attach Affiliation to Paper ---#
         af_m = AffiliationManagement(self.db)
         affs_old = af_m.where(paper_id=self.GetParent().selected_paper[0])
         for aff in affs_old:
@@ -690,7 +690,7 @@ class EditPaper(wx.Frame):
 
         self.Close()
 
-        #--- Update Paper Grid ---#
+        # --- Update Paper Grid ---#
         p = Paper(self.db)
         a = Author(self.db)
         authors = a.All()
@@ -698,25 +698,25 @@ class EditPaper(wx.Frame):
 
         row_len = self.GetParent().row
         self.GetParent().paper_grid.SetCellValue(row_len, 0, paper[1])
-        if(paper[2] != None):
+        if (paper[2] != None):
             self.GetParent().paper_grid.SetCellValue(row_len, 1, str(paper[2]))  # Year
         authors = ""
         clfs = ""
         affs = ""
-        if(p.authors(paper[0]) != None or p.authors(paper[0]) != []):
+        if (p.authors(paper[0]) != None or p.authors(paper[0]) != []):
             for author in p.authors(paper[0]):
                 authors += author[1] + "; "
             self.GetParent().paper_grid.SetCellValue(row_len, 2, authors)  # Author
-        if(p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
+        if (p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
             for clf in p.classifications(paper[0]):
                 clfs += clf[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 3, clfs)  # Classification
-        if(p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
+        if (p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
             for aff in p.affiliations(paper[0]):
                 affs += aff[1] + "; "
         self.GetParent().paper_grid.SetCellValue(row_len, 4, affs)  # Affiliationn
 
-        if(paper[7] == 0):
+        if (paper[7] == 0):
             for col in range(self.GetParent().paper_grid.GetNumberCols()):
                 self.GetParent().paper_grid.SetCellBackgroundColour(row_len, col, wx.Colour('#ffffd0'))
         else:
@@ -754,7 +754,7 @@ class EditPaper(wx.Frame):
 # end of class EditPaper
 
 
-###------ Author ------###
+### ------ Author ------###
 class ShowAuthor(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: ShowAuthor.__init__
@@ -794,7 +794,7 @@ class ShowAuthor(wx.Frame):
         affiliation_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         a = Author(self.db)
         aff = a.affiliation(self.GetParent().selected_author[0])
-        if(aff != None):
+        if (aff != None):
             affiliation_show_lbl.SetLabel(aff[1])
         grid_sizer_1.Add(affiliation_show_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -824,7 +824,7 @@ class ShowAuthor(wx.Frame):
 
         desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(self.GetParent().selected_author[2] != None):
+        if (self.GetParent().selected_author[2] != None):
             desc_show_lbl.SetLabel(self.GetParent().selected_author[2])
         sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
 
@@ -914,7 +914,7 @@ class EditAuthor(wx.Frame):
         self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.desc_txt.SetFocus()
-        if(self.GetParent().selected_author[2] != None):
+        if (self.GetParent().selected_author[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_author[2])
         sizer_4.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
 
@@ -932,7 +932,7 @@ class EditAuthor(wx.Frame):
         self.affiliation_cmb.Append("")
         for i, aff in enumerate(affs):
             self.affiliation_cmb.Append(aff[1])
-            if(self.GetParent().selected_author[3] == aff[0]):
+            if (self.GetParent().selected_author[3] == aff[0]):
                 self.affiliation_cmb.SetSelection(i + 1)
         sizer_6.Add(self.affiliation_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -954,7 +954,7 @@ class EditAuthor(wx.Frame):
 
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
-        if(desc == ""):
+        if (desc == ""):
             desc = None
         aff = self.affiliation_cmb.GetValue()
         affs = af.where(name=aff)
@@ -968,12 +968,12 @@ class EditAuthor(wx.Frame):
         self.GetParent().author_grid.SetCellValue(row_len, 0, name)
         self.GetParent().author_grid.SetCellValue(row_len, 1, aff[1])
         self.GetParent().author_grid.SetCellValue(row_len, 2, str(len(papers)))
-        self.GetParent().author_grid.SetCellValue(row_len, 3, desc if(desc != None) else "")
+        self.GetParent().author_grid.SetCellValue(row_len, 3, desc if (desc != None) else "")
         self.Close()
 # end of class EditAuthor
 
 
-###------ Classification ------###
+### ------ Classification ------###
 class RegisterClassification(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: RegisterClassification.__init__
@@ -1022,7 +1022,7 @@ class RegisterClassification(wx.Frame):
         clfs = self.GetParent().getClfWithSubLayer()
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
-            if(clf[1] == self.GetParent().selected_clf[1] and self.GetParent().parent is not None):
+            if (clf[1] == self.GetParent().selected_clf[1] and self.GetParent().parent is not None):
                 self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -1052,26 +1052,26 @@ class RegisterClassification(wx.Frame):
         # end wxGlade
 
     def createClassification(self, event):  # wxGlade: RegisterClassification.<event_handler>
-        #--- Register New Classification ---#
+        # --- Register New Classification ---#
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
         turn = self.sort_txt.GetValue()
         parent = self.parent_cmb.GetValue().strip()
-        if(turn == None or turn == ""):
+        if (turn == None or turn == ""):
             turn = 0
         parent_clf = self.parent_cmb.GetValue()
         c = Classification(self.db)
         clf = c.getDicFormat(name, desc, turn)
         clf = c.create(clf)
 
-        #--- Register Relation ---#
-        if(parent != ""):
+        # --- Register Relation ---#
+        if (parent != ""):
             cl_m = ClassificationLabelManagement(self.db)
             parent_clf = c.where(name=parent)
             cl_m.create(parent_clf[0][0], clf[0])
         self.Close()
 
-        #--- Update TreeCtrl ---#
+        # --- Update TreeCtrl ---#
         clfs = c.All(column='turn')
         self.GetParent().indexClassifications(c, clfs)
         self.GetParent().setClfSelection()
@@ -1131,7 +1131,7 @@ class ShowClassification(wx.Frame):
 
         desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        desc_show_lbl.SetLabel(self.GetParent().selected_clf[2] if(self.GetParent().selected_clf[2] != None) else "")
+        desc_show_lbl.SetLabel(self.GetParent().selected_clf[2] if (self.GetParent().selected_clf[2] != None) else "")
         sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
 
         sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1203,7 +1203,7 @@ class EditClassification(wx.Frame):
         self.name_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.name_txt.SetFocus()
-        if(self.GetParent().selected_clf[1] != None):
+        if (self.GetParent().selected_clf[1] != None):
             self.name_txt.SetValue(self.GetParent().selected_clf[1])
         grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
 
@@ -1229,7 +1229,7 @@ class EditClassification(wx.Frame):
         clfs = self.GetParent().getClfWithSubLayer()
         for i, clf in enumerate(clfs):
             self.parent_cmb.Append(str("  ") * clf[0] + clf[1])
-            if(parent_clf != [] and clf[1] == parent_clf[0][1]):
+            if (parent_clf != [] and clf[1] == parent_clf[0][1]):
                 self.parent_cmb.SetSelection(i + 1)
         grid_sizer_1.Add(self.parent_cmb, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
 
@@ -1243,7 +1243,7 @@ class EditClassification(wx.Frame):
         self.desc_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.desc_txt.SetFocus()
-        if(self.GetParent().selected_clf[2] != None):
+        if (self.GetParent().selected_clf[2] != None):
             self.desc_txt.SetValue(self.GetParent().selected_clf[2])
         sizer_3.Add(self.desc_txt, 8, wx.ALL | wx.EXPAND, 3)
 
@@ -1263,30 +1263,30 @@ class EditClassification(wx.Frame):
         # end wxGlade
 
     def editClassification(self, event):  # wxGlade: EditClassification.<event_handler>
-        #--- Register New Classification ---#
+        # --- Register New Classification ---#
         name = self.name_txt.GetValue()
         desc = self.desc_txt.GetValue()
         turn = self.sort_txt.GetValue()
         parent = self.parent_cmb.GetValue().strip()
-        if(turn == None or turn == ""):
+        if (turn == None or turn == ""):
             turn = 0
         parent_clf = self.parent_cmb.GetValue()
         c = Classification(self.db)
         clf = c.getDicFormat(name, desc, turn)
         c.update(self.GetParent().selected_clf[0], clf)
 
-        #--- Edit Relation ---#
+        # --- Edit Relation ---#
         cl_m = ClassificationLabelManagement(self.db)
         parent_clf_l_man = cl_m.where(sub_classification_id=self.GetParent().selected_clf[0])
-        if(parent_clf_l_man != []):
+        if (parent_clf_l_man != []):
             cl_m.deleteByID(parent_clf_l_man[0][0])
-        if(parent != ""):
+        if (parent != ""):
             parent_clf = c.where(name=parent)
             cl_m.create(parent_clf[0][0], self.GetParent().selected_clf[0])
         self.Close()
         self.GetParent().indexClassifications(c, c.All(column="turn"))
 
-        #--- Update TreeCtrl ---#
+        # --- Update TreeCtrl ---#
         clfs = c.All(column='turn')
         self.GetParent().indexClassifications(c, clfs)
         self.GetParent().setClfSelection()
@@ -1322,7 +1322,7 @@ class AttachClassification(wx.Frame):
             clf_buf = c.where(name=clf_layer[1])
             clf = clf_buf[0]
             self.listctrl.Append([" ", clf[0], "   " * clf_layer[0] + clf[1]])
-            if(clf[0] in self.GetParent().clfs_id):
+            if (clf[0] in self.GetParent().clfs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
 
@@ -1345,7 +1345,7 @@ class AttachClassification(wx.Frame):
 # end of class AttachClassification
 
 
-###------ Affiliation ------###
+### ------ Affiliation ------###
 class RegisterAffiliation(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: RegisterAffiliation.__init__
@@ -1408,8 +1408,8 @@ class RegisterAffiliation(wx.Frame):
 
     def registerAffiliation(self, event):  # wxGlade: RegisterAffiliation.<event_handler>
         name = self.name_txt.GetValue()
-        description = self.description_txt.GetValue() if(self.description_txt.GetValue() != None) else None
-        attribute = self.attribute_txt.GetValue() if(self.attribute_txt.GetValue() != None) else None
+        description = self.description_txt.GetValue() if (self.description_txt.GetValue() != None) else None
+        attribute = self.attribute_txt.GetValue() if (self.attribute_txt.GetValue() != None) else None
 
         af = Affiliation(self.db)
         affiliation = af.getDicFormat(name, description, attribute)
@@ -1418,7 +1418,7 @@ class RegisterAffiliation(wx.Frame):
         row_len = self.GetParent().affiliation_grid.GetNumberRows()
         self.GetParent().affiliation_grid.AppendRows()
         self.GetParent().affiliation_grid.SetCellValue(row_len, 0, name)
-        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if(attribute != None) else "")
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if (attribute != None) else "")
 # end of class RegisterAffiliation
 
 
@@ -1457,7 +1457,7 @@ class ShowAffiliation(wx.Frame):
         attribute_show_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "")
         attribute_show_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         attribute_show_lbl.Wrap(400)
-        attribute_show_lbl.SetLabel(str(self.GetParent().selected_aff[3]) if(self.GetParent().selected_aff[3] != None) else "")
+        attribute_show_lbl.SetLabel(str(self.GetParent().selected_aff[3]) if (self.GetParent().selected_aff[3] != None) else "")
         grid_sizer_1.Add(attribute_show_lbl, 0, wx.ALL, 2)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -1475,7 +1475,7 @@ class ShowAffiliation(wx.Frame):
 
         desc_show_lbl = wx.StaticText(self.panel_3, wx.ID_ANY, "")
         desc_show_lbl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        desc_show_lbl.SetLabel(self.GetParent().selected_aff[2] if(self.GetParent().selected_aff[2] != None) else "")
+        desc_show_lbl.SetLabel(self.GetParent().selected_aff[2] if (self.GetParent().selected_aff[2] != None) else "")
         sizer_2.Add(desc_show_lbl, 1, wx.ALL, 4)
 
         sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1544,7 +1544,7 @@ class EditAffiliation(wx.Frame):
         self.name_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.name_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.name_txt.SetFocus()
-        self.name_txt.SetValue(self.GetParent().selected_aff[1] if(self.GetParent().selected_aff[1]) else "")
+        self.name_txt.SetValue(self.GetParent().selected_aff[1] if (self.GetParent().selected_aff[1]) else "")
         grid_sizer_1.Add(self.name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
         attribute_lbl = wx.StaticText(self.panel_4, wx.ID_ANY, "Attribute")
@@ -1554,7 +1554,7 @@ class EditAffiliation(wx.Frame):
         self.attribute_txt = wx.TextCtrl(self.panel_4, wx.ID_ANY, "")
         self.attribute_txt.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         self.attribute_txt.SetFocus()
-        self.attribute_txt.SetValue(self.GetParent().selected_aff[3] if(self.GetParent().selected_aff[3]) else "")
+        self.attribute_txt.SetValue(self.GetParent().selected_aff[3] if (self.GetParent().selected_aff[3]) else "")
         grid_sizer_1.Add(self.attribute_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
         sizer_4 = wx.BoxSizer(wx.VERTICAL)
@@ -1572,7 +1572,7 @@ class EditAffiliation(wx.Frame):
 
         self.desc_txt = wx.TextCtrl(self.panel_3, wx.ID_ANY, "", style=wx.TE_MULTILINE)
         self.desc_txt.SetFocus()
-        self.desc_txt.SetValue(self.GetParent().selected_aff[2] if(self.GetParent().selected_aff[2]) else "")
+        self.desc_txt.SetValue(self.GetParent().selected_aff[2] if (self.GetParent().selected_aff[2]) else "")
         sizer_2.Add(self.desc_txt, 1, wx.EXPAND, 0)
 
         sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
@@ -1600,8 +1600,8 @@ class EditAffiliation(wx.Frame):
 
     def closeWindow(self, event):  # wxGlade: EditAffiliation.<event_handler>
         name = self.name_txt.GetValue()
-        desc = self.desc_txt.GetValue() if(self.desc_txt.GetValue() != None) else None
-        attribute = self.attribute_txt.GetValue() if(self.attribute_txt.GetValue() != None) else None
+        desc = self.desc_txt.GetValue() if (self.desc_txt.GetValue() != None) else None
+        attribute = self.attribute_txt.GetValue() if (self.attribute_txt.GetValue() != None) else None
         af = Affiliation(self.db)
         aff = af.getDicFormat(name, desc, attribute)
         af.update(self.GetParent().selected_aff[0], aff)
@@ -1609,7 +1609,7 @@ class EditAffiliation(wx.Frame):
         self.Close()
         row_len = self.GetParent().row
         self.GetParent().affiliation_grid.SetCellValue(row_len, 0, name)
-        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if(attribute != None) else "")
+        self.GetParent().affiliation_grid.SetCellValue(row_len, 1, attribute if (attribute != None) else "")
 # end of class EditAffiliation
 
 
@@ -1639,7 +1639,7 @@ class AttachAffiliation(wx.Frame):
         self.affs = af.All()
         for i, aff in enumerate(self.affs):
             self.listctrl.Append([" ", aff[0], aff[1]])
-            if(aff[0] in self.GetParent().affs_id):
+            if (aff[0] in self.GetParent().affs_id):
                 self.listctrl.CheckItem(i, True)
         sizer_1.Add(self.listctrl, 1, wx.ALL | wx.EXPAND, 2)
 
@@ -1663,7 +1663,7 @@ class AttachAffiliation(wx.Frame):
 # end of class AttachAffiliation
 
 
-###------ Welcome Frame ------###
+### ------ Welcome Frame ------###
 class WelcomePage(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: WelcomePage.__init__
@@ -1698,14 +1698,14 @@ class WelcomePage(wx.Frame):
 
         self.selectDB_dbx = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.selectDB_dbx.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        if(not(os.path.exists('./resource'))):
+        if (not (os.path.exists('./resource'))):
             os.mkdir('./resource')
-        if(not(os.path.exists('./resource/db'))):
+        if (not (os.path.exists('./resource/db'))):
             os.mkdir('./resource/db')
         self.dbs = os.listdir('./resource/db')
         for db in self.dbs:
             self.selectDB_dbx.Append(db)
-        if(len(self.dbs) >= 1):
+        if (len(self.dbs) >= 1):
             self.selectDB_dbx.SetSelection(0)
         sizer_3.Add(self.selectDB_dbx, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
 
@@ -1737,7 +1737,7 @@ class WelcomePage(wx.Frame):
         # end wxGlade
 
     def selectedDB(self, event):  # wxGlade: WelcomePage.<event_handler>
-        if(self.selectDB_dbx.GetSelection() == -1):
+        if (self.selectDB_dbx.GetSelection() == -1):
             wx.MessageBox("データベースを選択してください")
             return
         db_name = './resource/db/' + str(self.dbs[self.selectDB_dbx.GetSelection()])
@@ -1807,15 +1807,15 @@ class CreateDB(wx.Frame):
 
     def createDB(self, event):  # wxGlade: CreateDB.<event_handler>
         db_name = self.newDBname_txt.GetValue()
-        if(db_name == "" or db_name == None):
+        if (db_name == "" or db_name == None):
             wx.MessageBox("ファイル名を入力してください")
-        elif(os.path.splitext(db_name)[1] == ""):
+        elif (os.path.splitext(db_name)[1] == ""):
             wx.MessageBox("拡張子を入力してください")
-        elif(os.path.exists("./resource/db/" + db_name)):
+        elif (os.path.exists("./resource/db/" + db_name)):
             wx.MessageBox("すでに存在するデータベースです")
         else:
             createAllTables("./resource/db/" + db_name)
-            if(not(os.path.exists('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0]))):
+            if (not (os.path.exists('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0]))):
                 os.mkdir('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0])
             self.Close()
             self.RposMain = RposMain(None, wx.ID_ANY, "./resource/db/" + db_name)
@@ -1834,7 +1834,7 @@ class CreateDB(wx.Frame):
 # end of class CreateDB
 
 
-###------ Main Frame ------###
+### ------ Main Frame ------###
 class RposMain(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: RposMain.__init__
@@ -2097,39 +2097,39 @@ class RposMain(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         # end wxGlade
 
-    ###--- Paper ---###
+    ### --- Paper ---###
     def indexPaper(self, papers):
-        if(self.paper_grid.GetNumberRows() != 0):
+        if (self.paper_grid.GetNumberRows() != 0):
             self.paper_grid.DeleteRows(0, self.paper_grid.GetNumberRows(), True)
-        if(papers == []):
+        if (papers == []):
             return
 
-        #--- Show Each Paper ---#
+        # --- Show Each Paper ---#
         for i, paper in enumerate(papers):
             p = Paper(self.db)
             self.paper_grid.AppendRows()
             self.paper_grid.SetCellValue(i, 0, paper[1])  # Title
-            if(paper[2] != None):
+            if (paper[2] != None):
                 self.paper_grid.SetCellValue(i, 1, str(paper[2]))  # Year
 
             authors = ""
             clfs = ""
             affs = ""
-            if(p.authors(paper[0]) != None or p.authors(paper[0]) != []):
+            if (p.authors(paper[0]) != None or p.authors(paper[0]) != []):
                 for author in p.authors(paper[0]):
                     authors += author[1] + "; "
                 self.paper_grid.SetCellValue(i, 2, authors)  # Author
-            if(p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
+            if (p.classifications(paper[0]) != None or p.classifications(paper[0]) != []):
                 for clf in p.classifications(paper[0]):
                     clfs += clf[1] + "; "
             self.paper_grid.SetCellValue(i, 3, clfs)  # Classification
-            if(p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
+            if (p.affiliations(paper[0]) != None or p.affiliations(paper[0]) != []):
                 for aff in p.affiliations(paper[0]):
                     affs += aff[1] + "; "
             self.paper_grid.SetCellValue(i, 4, affs)  # Affiliationn
             self.paper_grid.SetCellValue(i, 5, paper[8])
             self.paper_grid.SetCellValue(i, 6, paper[9])
-            if(paper[7] == 0):
+            if (paper[7] == 0):
                 for col in range(self.paper_grid.GetNumberCols()):
                     self.paper_grid.SetCellBackgroundColour(i, col, wx.Colour('#ffffd0'))
         self.paper_grid.ForceRefresh()
@@ -2148,12 +2148,12 @@ class RposMain(wx.Frame):
 
     def deletePaper(self, event):
         msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING)
-        if(msg == wx.NO):
+        if (msg == wx.NO):
             return
 
-        #--- Delete File ---#
-        if(self.selected_paper[3] != None):
-            if(os.path.isfile(self.selected_paper[3])):
+        # --- Delete File ---#
+        if (self.selected_paper[3] != None):
+            if (os.path.isfile(self.selected_paper[3])):
                 try:
                     os.remove(self.selected_paper[3])
                 except PermissionError:
@@ -2168,25 +2168,25 @@ class RposMain(wx.Frame):
         for author_man in authors_man:
             a_m.deleteByID(author_man[0])
 
-        #--- Delete Relation to Classification ---#
+        # --- Delete Relation to Classification ---#
         c_m = ClassificationManagement(self.db)
         clfs_man = c_m.where(paper_id=self.selected_paper[0])
         for clf_man in clfs_man:
             c_m.deleteByID(clf_man[0])
 
-        #--- Delete Relation to Affiliation ---#
+        # --- Delete Relation to Affiliation ---#
         af_m = AffiliationManagement(self.db)
         affs_man = af_m.where(paper_id=self.selected_paper[0])
         for aff_man in affs_man:
             af_m.deleteByID(aff_man[0])
 
-        #--- Update Paper Grid ---#
+        # --- Update Paper Grid ---#
         self.paper_grid.DeleteRows(self.row, 1)
 
     def paperFileOpen(self, event):
         filepath = self.selected_paper[3]
-        if(filepath != None and os.path.isfile(filepath)):
-            if(" " in filepath):
+        if (filepath != None and os.path.isfile(filepath)):
+            if (" " in filepath):
                 subprocess.Popen(r'"{}"'.format(filepath), shell=True)
             else:
                 subprocess.Popen(['start', filepath], shell=True)
@@ -2204,55 +2204,55 @@ class RposMain(wx.Frame):
         narRead = self.narRead_cmb.GetValue()
         p = Paper(self.db)
         papers = p.All()
-        if(narTitle != "" or narAuthor != "" or narClf != "" or narAff != "" or narRead != ""):
-            if(narTitle != "" or narRead != ""):
+        if (narTitle != "" or narAuthor != "" or narClf != "" or narAff != "" or narRead != ""):
+            if (narTitle != "" or narRead != ""):
                 papers = set(papers) & set(self.narrowTitleAndRead(narTitle, narRead))
-            if(narAuthor != ""):
+            if (narAuthor != ""):
                 papers = set(papers) & set(self.narrowAuthor(narAuthor))
-            if(narClf != ""):
+            if (narClf != ""):
                 papers = set(papers) & set(self.narrowClf(narClf))
-            if(narAff != ""):
+            if (narAff != ""):
                 papers = set(papers) & set(self.narrowAff(narAff))
             papers = list(papers)
-        elif(narAuthor == ""):
+        elif (narAuthor == ""):
             a = Author(self.db)
             self.indexAuthor(a.All())
 
-        #--- sort ---#
-        if(self.pgrid_title_state == 1):
+        # --- sort ---#
+        if (self.pgrid_title_state == 1):
             papers = sorted(papers, key=lambda x: x[1], reverse=True)
-        elif(self.pgrid_title_state == 2):
+        elif (self.pgrid_title_state == 2):
             papers = sorted(papers, key=lambda x: x[1], reverse=False)
-        elif(self.pgrid_year_state == 1):
+        elif (self.pgrid_year_state == 1):
             papers = sorted(papers, key=lambda x: x[2], reverse=True)
-        elif(self.pgrid_year_state == 2):
+        elif (self.pgrid_year_state == 2):
             papers = sorted(papers, key=lambda x: x[2], reverse=False)
-        elif(self.pgrid_register_state == 1):
+        elif (self.pgrid_register_state == 1):
             papers = sorted(papers, key=lambda x: x[8], reverse=True)
-        elif(self.pgrid_register_state == 2):
+        elif (self.pgrid_register_state == 2):
             papers = sorted(papers, key=lambda x: x[8], reverse=False)
-        elif(self.pgrid_update_state == 1):
+        elif (self.pgrid_update_state == 1):
             papers = sorted(papers, key=lambda x: x[9], reverse=True)
-        elif(self.pgrid_update_state == 2):
+        elif (self.pgrid_update_state == 2):
             papers = sorted(papers, key=lambda x: x[9], reverse=False)
         self.indexPaper(papers)
 
-    ###--- Author --- ###
+    ### --- Author --- ###
     def indexAuthor(self, authors):
-        if(self.author_grid.GetNumberRows() != 0):
+        if (self.author_grid.GetNumberRows() != 0):
             self.author_grid.DeleteRows(0, self.author_grid.GetNumberRows(), True)
-        if(authors == []):
+        if (authors == []):
             return
         for i, author in enumerate(authors):
             a = Author(self.db)
             papers = a.papers(author[0])
             af = Affiliation(self.db)
-            aff = af.find(author[3]) if(author[3] != None) else ["", ""]
+            aff = af.find(author[3]) if (author[3] != None) else ["", ""]
             self.author_grid.AppendRows()
             self.author_grid.SetCellValue(i, 0, author[1])
             self.author_grid.SetCellValue(i, 1, aff[1])
             self.author_grid.SetCellValue(i, 2, str(len(papers)))
-            self.author_grid.SetCellValue(i, 3, author[2] if(author[2] != None) else "")
+            self.author_grid.SetCellValue(i, 3, author[2] if (author[2] != None) else "")
 
     def registerAuthor(self, event):  # wxGlade: RposMain.<event_handler>
         event.Skip()
@@ -2267,10 +2267,10 @@ class RposMain(wx.Frame):
 
     def deleteAuthor(self, event):
         msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
-        if(msg == wx.NO):
+        if (msg == wx.NO):
             return
 
-        #--- Delete Author ---#
+        # --- Delete Author ---#
         a = Author(self.db)
         a.delete(self.selected_author[0])
 
@@ -2280,22 +2280,22 @@ class RposMain(wx.Frame):
         for author_man in authors_man:
             a_m.deleteByID(author_man[0])
 
-        #--- Update Grids ---#
+        # --- Update Grids ---#
         p = Paper(self.db)
         self.indexPaper(p.All())
         self.author_grid.DeleteRows(self.row, 1)
 
-    ###--- Classification ---###
+    ### --- Classification ---###
     def indexClassifications(self, c, clfs):
         c = Classification(self.db)
-        if(clfs == []):
+        if (clfs == []):
             return
         clfs = sorted(clfs, key=lambda x: x[3], reverse=False)
         self.clf_treectrl.DeleteAllItems()
         root = self.clf_treectrl.AddRoot("Classifications")
         for clf in clfs:
             parentclfs = c.parentclasses(clf[0])
-            if(parentclfs == []):  # Show Only Top Classification
+            if (parentclfs == []):  # Show Only Top Classification
                 self.getAndShowSubClf(c, root, clf)  # Recursive Function
         self.clf_treectrl.Expand(root)
 
@@ -2319,29 +2319,29 @@ class RposMain(wx.Frame):
 
     def deleteClassification(self, event):
         msg = wx.MessageBox(u'削除しますか', u'Classification Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
-        if(msg == wx.NO):
+        if (msg == wx.NO):
             return
         c = Classification(self.db)
         c.delete(self.selected_clf[0])
 
-        #--- Delete Relation to Paper ---#
+        # --- Delete Relation to Paper ---#
         c_m = ClassificationManagement(self.db)
         clfs_man = c_m.where(classification_id=self.selected_clf[0])
         for clf_man in clfs_man:
             c_m.deleteByID(clf_man[0])
 
-        #--- Delete Relation to Classification Label ---#
+        # --- Delete Relation to Classification Label ---#
         cl_m = ClassificationLabelManagement(self.db)
         clfs_l_man = cl_m.where(sub_classification_id=self.selected_clf[0])
         for clf_l_man in clfs_l_man:
             cl_m.deleteByID(clf_l_man[0])
 
-        #--- Update TreeCtrl and Combox ---#
+        # --- Update TreeCtrl and Combox ---#
         self.indexClassifications(c, c.All())
         self.setClfSelection()
 
     def narrowClassification(self, event):
-        if(self.selected_clf == 'All'):
+        if (self.selected_clf == 'All'):
             p = Paper(self.db)
             papers = p.All()
             self.narClf_cmb.SetSelection(-1)
@@ -2377,7 +2377,7 @@ class RposMain(wx.Frame):
         clfs = c.All(column='turn')
         clfs_name_layer = []
         for clf in clfs:
-            if(c.parentclasses(clf[0]) == []):
+            if (c.parentclasses(clf[0]) == []):
                 clfs_name_layer.append([0, clf[1]])
                 self.getSubClf(c, clf[0], 0, clfs_name_layer)
         return clfs_name_layer
@@ -2390,15 +2390,15 @@ class RposMain(wx.Frame):
             self.getSubClf(c, clf[0], layer, clfs_name_layer)
 
     def getLayer(self, layer, clf_item):
-        if(self.clf_treectrl.GetItemText(clf_item) == 'Classifications'):
+        if (self.clf_treectrl.GetItemText(clf_item) == 'Classifications'):
             return layer
         else:
             parent_clf = self.clf_treectrl.GetItemParent(clf_item)
             return self.getLayer(layer + 1, parent_clf)
 
-    ###--- Affiliation ---###
+    ### --- Affiliation ---###
     def indexAffiliation(self, affiliations):
-        if(affiliations == []):
+        if (affiliations == []):
             return
         self.affiliation_grid.DeleteRows(0, self.affiliation_grid.GetNumberRows(), True)
         for i, affiliation in enumerate(affiliations):
@@ -2420,19 +2420,19 @@ class RposMain(wx.Frame):
 
     def deleteAffiliation(self, event):
         msg = wx.MessageBox(u'削除しますか', u'Paper Delete', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_ERROR)
-        if(msg == wx.NO):
+        if (msg == wx.NO):
             return
         af = Affiliation(self.db)
         af.delete(self.selected_aff[0])
         self.indexAffiliation(af.All())
 
-        #--- Delete Relation to Paper ---#
+        # --- Delete Relation to Paper ---#
         af_m = AffiliationManagement(self.db)
         affs_man = af_m.where(affiliation_id=self.selected_aff[0])
         for aff_man in affs_man:
             af_m.deleteByID(aff_man[0])
 
-    ###--- Event ---###
+    ### --- Event ---###
     def pGrid_leftClick(self, event):  # wxGlade: RposMain.<event_handler>
         self.selectedPaper = self.paper_grid.GetSelectedCells()
         pass
@@ -2446,14 +2446,14 @@ class RposMain(wx.Frame):
         self.paperFileOpen(event)
 
     def pGrid_rightClick(self, event):  # wxGlade: RposMain.<event_handler>
-        #--- Extract selected Paper ---#
+        # --- Extract selected Paper ---#
         self.row = event.GetRow()
         selected_paper_title = self.paper_grid.GetCellValue(self.row, 0)
         p = Paper(self.db)
         selected_papers = p.where(title=selected_paper_title)
         self.selected_paper = selected_papers[0]
 
-        #--- Configure Menu ---#
+        # --- Configure Menu ---#
         menu = wx.Menu()
         popupRegister = menu.Append(-1, 'Register New Paper')
         popupOpen = menu.Append(-1, 'Open PDF File')
@@ -2476,66 +2476,66 @@ class RposMain(wx.Frame):
         Args:
             event
         """
-        if(event.GetCol() == 1):
+        if (event.GetCol() == 1):
             self.pgrid_title_state = 0
             self.pgrid_register_state = 0
             self.pgrid_update_state = 0
             self.paper_grid.SetColLabelValue(0, "Title")
             self.paper_grid.SetColLabelValue(5, "Registered At")
             self.paper_grid.SetColLabelValue(6, "Updated At")
-            if(self.pgrid_year_state == 0):
+            if (self.pgrid_year_state == 0):
                 self.paper_grid.SetColLabelValue(1, "Year↓")
                 self.pgrid_year_state = 1
-            elif(self.pgrid_year_state == 1):
+            elif (self.pgrid_year_state == 1):
                 self.paper_grid.SetColLabelValue(1, "Year↑")
                 self.pgrid_year_state = 2
-            elif(self.pgrid_year_state == 2):
+            elif (self.pgrid_year_state == 2):
                 self.paper_grid.SetColLabelValue(1, "Year")
                 self.pgrid_year_state = 0
-        elif(event.GetCol() == 0):
+        elif (event.GetCol() == 0):
             self.pgrid_year_state = 0
             self.pgrid_register_state = 0
             self.paper_grid.SetColLabelValue(1, "Year")
             self.paper_grid.SetColLabelValue(5, "Registered At")
-            if(self.pgrid_title_state == 0):
+            if (self.pgrid_title_state == 0):
                 self.paper_grid.SetColLabelValue(0, "Title↓")
                 self.pgrid_title_state = 1
-            elif(self.pgrid_title_state == 1):
+            elif (self.pgrid_title_state == 1):
                 self.paper_grid.SetColLabelValue(0, "Title↑")
                 self.pgrid_title_state = 2
-            elif(self.pgrid_title_state == 2):
+            elif (self.pgrid_title_state == 2):
                 self.paper_grid.SetColLabelValue(0, "Title")
                 self.pgrid_title_state = 0
-        elif(event.GetCol() == 5):
+        elif (event.GetCol() == 5):
             self.pgrid_title_state = 0
             self.pgrid_year_state = 0
             self.pgrid_update_state = 0
             self.paper_grid.SetColLabelValue(0, "Title")
             self.paper_grid.SetColLabelValue(1, "Year")
             self.paper_grid.SetColLabelValue(6, "Updated At")
-            if(self.pgrid_register_state == 0):
+            if (self.pgrid_register_state == 0):
                 self.paper_grid.SetColLabelValue(5, "Registered At↓")
                 self.pgrid_register_state = 1
-            elif(self.pgrid_register_state == 1):
+            elif (self.pgrid_register_state == 1):
                 self.paper_grid.SetColLabelValue(5, "Registered At↑")
                 self.pgrid_register_state = 2
-            elif(self.pgrid_register_state == 2):
+            elif (self.pgrid_register_state == 2):
                 self.paper_grid.SetColLabelValue(5, "Registered At")
                 self.pgrid_register_state = 0
-        elif(event.GetCol() == 6):
+        elif (event.GetCol() == 6):
             self.pgrid_title_state = 0
             self.pgrid_year_state = 0
             self.pgrid_register_state = 0
             self.paper_grid.SetColLabelValue(0, "Title")
             self.paper_grid.SetColLabelValue(1, "Year")
             self.paper_grid.SetColLabelValue(5, "Registered At")
-            if(self.pgrid_update_state == 0):
+            if (self.pgrid_update_state == 0):
                 self.paper_grid.SetColLabelValue(6, "Updated At↓")
                 self.pgrid_update_state = 1
-            elif(self.pgrid_update_state == 1):
+            elif (self.pgrid_update_state == 1):
                 self.paper_grid.SetColLabelValue(6, "Updated At↑")
                 self.pgrid_update_state = 2
-            elif(self.pgrid_update_state == 2):
+            elif (self.pgrid_update_state == 2):
                 self.paper_grid.SetColLabelValue(6, "Updated At")
                 self.pgrid_update_state = 0
         else:
@@ -2553,7 +2553,7 @@ class RposMain(wx.Frame):
         selected_authors = a.where(name=selected_author_name)
         self.selected_author = selected_authors[0]
 
-        #--- Configure Menu ---#
+        # --- Configure Menu ---#
         menu = wx.Menu()
         popupRegister = menu.Append(-1, 'Register New Author')
         popupShow = menu.Append(-1, 'Show')
@@ -2576,7 +2576,7 @@ class RposMain(wx.Frame):
         selected_affs = af.where(name=selected_aff_name)
         self.selected_aff = selected_affs[0]
 
-        #--- Configure Menu ---#
+        # --- Configure Menu ---#
         menu = wx.Menu()
         popupRegister = menu.Append(-1, 'Register New Affiliation')
         popupShow = menu.Append(-1, 'Show')
@@ -2593,7 +2593,7 @@ class RposMain(wx.Frame):
         c = Classification(self.db)
         selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
         self.selected_clf_layer = self.getLayer(0, event.GetItem())
-        if(selected_classification == []):
+        if (selected_classification == []):
             self.selected_clf = 'All'
         else:
             self.selected_clf = selected_classification[0]
@@ -2602,7 +2602,7 @@ class RposMain(wx.Frame):
     def treeCtrl_rightClicked(self, event):  # wxGlade: RposMain.<event_handler>
         c = Classification(self.db)
         selected_classification = c.where(name=self.clf_treectrl.GetItemText(event.GetItem()))
-        if(selected_classification == []):
+        if (selected_classification == []):
             menu = wx.Menu()
             self.selected_clf = "All"
             popupRegister = menu.Append(-1, 'Register New Classification')
@@ -2630,9 +2630,9 @@ class RposMain(wx.Frame):
 
     def narrowTitleAndRead(self, narTitle, narRead):
         p = Paper(self.db)
-        if(narRead == "Done"):
+        if (narRead == "Done"):
             isread = 1
-        elif(narRead == "Not Yet"):
+        elif (narRead == "Not Yet"):
             isread = 0
         else:
             isread = None
@@ -2644,7 +2644,7 @@ class RposMain(wx.Frame):
         papers = []
         for author in authors:
             for paper in a.papers(author[0]):
-                if(paper == None):
+                if (paper == None):
                     continue
                 papers.append(paper)
         self.indexAuthor(authors)
@@ -2696,9 +2696,9 @@ class ClfListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoW
     def OnCheckItem(self, index, flag):
         c = Classification(self.GetParent().GetParent().db)
         clf = c.find(int(self.GetItemText(index, 1)))
-        if(flag == True):
+        if (flag == True):
             self.checkedItem.append(clf[0])
-        elif(flag == False):
+        elif (flag == False):
             self.checkedItem.remove(clf[0])
 
 
@@ -2713,9 +2713,9 @@ class AffListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoW
     def OnCheckItem(self, index, flag):
         af = Affiliation(self.GetParent().GetParent().db)
         aff = af.find(int(self.GetItemText(index, 1)))
-        if(flag == True):
+        if (flag == True):
             self.checkedItem.append(aff[0])
-        elif(flag == False):
+        elif (flag == False):
             self.checkedItem.remove(aff[0])
 
 
