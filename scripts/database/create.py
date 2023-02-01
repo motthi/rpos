@@ -2,24 +2,23 @@ import sqlite3
 import os
 
 
-def createAllTables(db_name):
-    if(os.path.splitext(db_name)[1] == '.db'):
-        conn = sqlite3.connect(db_name)
-        c = conn.cursor()
-        createPaper(c, db_name)
-        createAffiliations(c, db_name)
-        createAuthor(c, db_name)
-        createClassification(c, db_name)
-        createClassificationManagement(c, db_name)
-        createAffiliationManagement(c, db_name)
-        createAuthorManagement(c, db_name)
-        createClassificationLabelManagement(c, db_name)
-        return 1
+def createAllTables(db_name) -> bool:
+    if os.path.splitext(db_name)[1] == '.db':
+        createPaper(db_name)
+        createAffiliations(db_name)
+        createAuthor(db_name)
+        createClassification(db_name)
+        createClassificationManagement(db_name)
+        createAffiliationManagement(db_name)
+        createAuthorManagement(db_name)
+        createClassificationLabelManagement(db_name)
+        return True
     else:
-        return 0
+        return False
 
 
-def createPaper(c, db_name):
+def createPaper(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE Papers(
             id integer primary key not null,
@@ -36,9 +35,8 @@ def createPaper(c, db_name):
     )
 
 
-def createClassification(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createClassification(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE Classifications(
             id integer primary key not null,
@@ -51,9 +49,8 @@ def createClassification(c, db_name):
     )
 
 
-def createAffiliations(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createAffiliations(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE Affiliations(
             id integer primary key not null,
@@ -66,9 +63,8 @@ def createAffiliations(c, db_name):
     )
 
 
-def createAuthor(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createAuthor(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE Authors(
             id integer primary key not null,
@@ -81,9 +77,8 @@ def createAuthor(c, db_name):
     )
 
 
-def createClassificationManagement(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createClassificationManagement(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE ClassificationManagements(
             id integer primary key not null,
@@ -93,9 +88,8 @@ def createClassificationManagement(c, db_name):
     )
 
 
-def createAuthorManagement(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createAuthorManagement(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE AuthorManagements(
             id integer primary key not null,
@@ -105,9 +99,8 @@ def createAuthorManagement(c, db_name):
     )
 
 
-def createAffiliationManagement(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createAffiliationManagement(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE AffiliationManagements(
             id integer primary key not null,
@@ -117,9 +110,8 @@ def createAffiliationManagement(c, db_name):
     )
 
 
-def createClassificationLabelManagement(c, db_name):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def createClassificationLabelManagement(db_name):
+    c = sqlite3.connect(db_name).cursor()
     c.execute(
         '''CREATE TABLE ClassificationLabelManagements(
             id integer primary key not null,

@@ -1,5 +1,5 @@
-from pybtex.database import*
-from . import*
+from pybtex.database import *
+from scripts.database.database import Paper, Author
 
 
 def readBibtex(pap, file, doi=None, description=None, isread=0):
@@ -18,14 +18,14 @@ def readBibtex(pap, file, doi=None, description=None, isread=0):
     authors = []
     for author in e.persons['author']:
         name = ""
-        if(author.first_names != [] and author.first_names != None):
+        if author.first_names != [] and author.first_names != None:
             name += str(author.first_names[0]) + " "
-        if(author.middle_names != [] and author.middle_names != None):
+        if author.middle_names != [] and author.middle_names != None:
             name += str(author.middle_names[0]) + " "
-        if(author.last_names != [] and author.last_names != None):
+        if author.last_names != [] and author.last_names != None:
             name += str(author.last_names[0])
         authors.append(Author.getDicFormat(name))
-    if('year' in e.fields):
+    if 'year' in e.fields:
         year = int(e.fields['year'])
     else:
         year = None
