@@ -93,7 +93,13 @@ class RegisterClassification(wx.Frame):
         self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.createClassification, self.create_btn)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def createClassification(self, event):
         name = self.name_txt.GetValue()
@@ -201,6 +207,13 @@ class ShowClassification(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.narrowClf, self.narrowClf_btn)
         self.Bind(wx.EVT_BUTTON, self.editClf, self.editAuthor_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def narrowClf(self, event):
         self.GetParent().narClf_cmb.SetString(self.GetParent().selected_clf[1])
@@ -298,6 +311,13 @@ class EditClassification(wx.Frame):
         self.RegisterHotKey(1234, wx.MOD_CONTROL, ord('z'))
 
         self.Bind(wx.EVT_BUTTON, self.editClassification, self.edit_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def editClassification(self, event):
         # --- Register New Classification ---#
@@ -371,6 +391,13 @@ class AttachClassification(wx.Frame):
         self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.attachClf_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def attachClf(self, event):
         self.GetParent().clfs_id = self.listctrl.checkedItem

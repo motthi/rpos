@@ -62,7 +62,13 @@ class CreateDB(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.returnToWelcomePage, self.return_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.returnToWelcomePage()
+        else:
+            event.Skip()
 
     def createDB(self, event):
         db_name = self.newDBname_txt.GetValue()
@@ -162,7 +168,13 @@ class WelcomePage(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.selectedDB, self.selectDB_btn)
         self.Bind(wx.EVT_BUTTON, self.createNewDB, self.createDB_btn)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def selectedDB(self, event):  # wxGlade: WelcomePage.<event_handler>
         if self.selectDB_dbx.GetSelection() == -1:

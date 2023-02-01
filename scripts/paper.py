@@ -120,6 +120,13 @@ class RegisterPaper(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.clf_btn)
         self.Bind(wx.EVT_BUTTON, self.attachAff, self.aff_btn)
         self.Bind(wx.EVT_BUTTON, self.registerPaper, self.registerPaper_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def registerPaper(self, event):
         bibtex = self.bibtex_txt.GetValue()
@@ -420,6 +427,13 @@ class ShowPaper(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.openFile, self.openFile_btn)
         self.Bind(wx.EVT_BUTTON, self.editPaper, self.editPaper_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def editPaper(self, event):
         self.Close()
@@ -580,6 +594,13 @@ class EditPaper(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.clf_btn)
         self.Bind(wx.EVT_BUTTON, self.attachAff, self.aff_btn)
         self.Bind(wx.EVT_BUTTON, self.editPaper, self.editPaper_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def editPaper(self, event):
         bibtex = self.bibtex_txt.GetValue()

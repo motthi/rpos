@@ -104,6 +104,13 @@ class ShowAuthor(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.narrowAuthor, self.narrowAuthor_btn)
         self.Bind(wx.EVT_BUTTON, self.editAuthor, self.editAuthor_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def narrowAuthor(self, event):
         self.GetParent().narAuthor_txtCtrl.SetValue(self.GetParent().selected_author[1])
@@ -192,6 +199,13 @@ class EditAuthor(wx.Frame):
         self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.editAuthor, self.edit_btn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def editAuthor(self, event):
         a = Author(self.db)

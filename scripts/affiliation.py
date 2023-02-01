@@ -78,7 +78,13 @@ class RegisterAffiliation(wx.Frame):
         self.affs_id = []
 
         self.Bind(wx.EVT_BUTTON, self.registerAffiliation, self.registerAff_btn)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def registerAffiliation(self, event):
         name = self.name_txt.GetValue()
@@ -93,7 +99,6 @@ class RegisterAffiliation(wx.Frame):
         self.GetParent().aff_grid.AppendRows()
         self.GetParent().aff_grid.SetCellValue(row_len, 0, name)
         self.GetParent().aff_grid.SetCellValue(row_len, 1, attribute if attribute != None else "")
-# end of class RegisterAffiliation
 
 
 class ShowAffiliation(wx.Frame):
@@ -178,20 +183,25 @@ class ShowAffiliation(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.narrowAff, self.narrowAff_btn)
         self.Bind(wx.EVT_BUTTON, self.editAff, self.editAff_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
 
-    def narrowAff(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
+
+    def narrowAff(self, event):
         print("Event handler 'narrowAff' not implemented!")
         event.Skip()
 
-    def editAff(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+    def editAff(self, event):
         self.Close()
         editAff = EditAffiliation(self.GetParent(), wx.ID_ANY, self.db)
         editAff.Show()
 
-    def closeWindow(self, event):  # wxGlade: ShowAffiliation.<event_handler>
+    def closeWindow(self, event):
         self.Close()
-# end of class ShowAffiliation
 
 
 class EditAffiliation(wx.Frame):
@@ -270,7 +280,13 @@ class EditAffiliation(wx.Frame):
         self.db = args[2]
 
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.edit_btn)
-        # end wxGlade
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
+
+    def onKeyDown(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close()
+        else:
+            event.Skip()
 
     def closeWindow(self, event):
         name = self.name_txt.GetValue()
@@ -284,12 +300,10 @@ class EditAffiliation(wx.Frame):
         row_len = self.GetParent().row
         self.GetParent().aff_grid.SetCellValue(row_len, 0, name)
         self.GetParent().aff_grid.SetCellValue(row_len, 1, attribute if attribute != None else "")
-# end of class EditAffiliation
 
 
 class AttachAffiliation(wx.Frame):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: AttachAffiliation.__init__
         self.db = args[2]
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
