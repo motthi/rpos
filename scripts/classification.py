@@ -3,20 +3,13 @@ import wx.lib.mixins.listctrl as listmix
 from scripts.database.database import Classification, ClassificationLabelManagement
 
 
-class ClfListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoWidthMixin):
+class ClfListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
     def __init__(self, panel, style):
         wx.ListCtrl.__init__(self, panel, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER, size=wx.Size(395, 467), pos=wx.Point(10, 20))
-        listmix.CheckListCtrlMixin.__init__(self)
         listmix.ListCtrlAutoWidthMixin.__init__(self)
+        self.EnableCheckBoxes(True)
+        self.IsChecked = self.IsItemChecked
         self.checkedItem = []
-
-    def OnCheckItem(self, index, flag):
-        c = Classification(self.GetParent().GetParent().db)
-        clf = c.find(int(self.GetItemText(index, 1)))
-        if flag == True:
-            self.checkedItem.append(clf[0])
-        elif flag == False:
-            self.checkedItem.remove(clf[0])
 
 
 class RegisterClassification(wx.Frame):
@@ -400,6 +393,9 @@ class AttachClassification(wx.Frame):
             event.Skip()
 
     def attachClf(self, event):
-        self.GetParent().clfs_id = self.listctrl.checkedItem
+        self.GetParent().clfs_id = []
+        for i in range(self.listctrl.GetItemCount()):
+            if self.listctrl.IsChecked(i):
+                self.GetParent().clfs_id.append(self.listctrl.GetItemText(i, 1))
         self.Close()
         self.GetParent().indexClassifications()

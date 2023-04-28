@@ -4,20 +4,13 @@ import wx.lib.mixins.listctrl as listmix
 from database.database import Affiliation
 
 
-class AffListCtrl(wx.ListCtrl, listmix.CheckListCtrlMixin, listmix.ListCtrlAutoWidthMixin):
+class AffListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
     def __init__(self, panel, style):
         wx.ListCtrl.__init__(self, panel, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER, size=wx.Size(395, 467), pos=wx.Point(10, 20))
-        listmix.CheckListCtrlMixin.__init__(self)
         listmix.ListCtrlAutoWidthMixin.__init__(self)
+        self.EnableCheckBoxes(True)
+        self.IsChecked = self.IsItemChecked
         self.checkedItem = []
-
-    def OnCheckItem(self, index, flag):
-        af = Affiliation(self.GetParent().GetParent().db)
-        aff = af.find(int(self.GetItemText(index, 1)))
-        if flag == True:
-            self.checkedItem.append(aff[0])
-        elif (flag == False):
-            self.checkedItem.remove(aff[0])
 
 
 class RegisterAffiliation(wx.Frame):
@@ -343,6 +336,9 @@ class AttachAffiliation(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.attachClf, self.attachClf_btn)
 
     def attachClf(self, event):
-        self.GetParent().affs_id = self.listctrl.checkedItem
+        self.GetParent().affs_id = []
+        for i in range(self.listctrl.GetItemCount()):
+            if self.listctrl.IsChecked(i):
+                self.GetParent().affs_id.append(self.listctrl.GetItemText(i, 1))
         self.Close()
         self.GetParent().showAffiliations()
