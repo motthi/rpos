@@ -325,10 +325,12 @@ class RposMain(wx.Frame):
 
         self.Bind(wx.EVT_SEARCH, self.searchPaper, self.title_txt_ctrl)
         self.Bind(wx.EVT_SEARCH, self.searchPaper, self.author_txt_ctrl)
+        self.Bind(wx.EVT_SEARCH_CANCEL, self.searchPaper, self.author_txt_ctrl)
+        self.Bind(wx.EVT_SEARCH_CANCEL, self.searchPaper, self.title_txt_ctrl)
         self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.clf_cmb)
         self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.aff_cmb)
         self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.has_read_cmb)
-        self.Bind(wx.EVT_BUTTON, self.resetNarrowing, self.reset_btn)
+        self.Bind(wx.EVT_BUTTON, self.resetSearching, self.reset_btn)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.treeCtrlActivated, self.clf_tree_ctrl)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.treeCtrlRightClicked, self.clf_tree_ctrl)
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_LEFT_DCLICK, self.paperGridDoubleLeftClick, self.paper_grid)
@@ -546,7 +548,6 @@ class RposMain(wx.Frame):
             msg = wx.MessageBox(u'File not found', u'File Not Found', wx.ICON_ERROR)
 
     def searchPaper(self, event):
-        print("Search papers")
         title = self.title_txt_ctrl.GetValue()
         auth = self.author_txt_ctrl.GetValue()
         clf = self.clf_cmb.GetValue().strip()
@@ -556,13 +557,13 @@ class RposMain(wx.Frame):
         papers = Paper(self.db).All()
         if title != "" or auth != "" or clf != "" or aff != "" or has_read != "":
             if title != "" or has_read != "":
-                papers = set(papers) & set(self.narrowTitleAndRead(title, has_read))
+                papers = set(papers) & set(self.searchByTitleAndIsRead(title, has_read))
             if auth != "":
-                papers = set(papers) & set(self.narrowAuthor(auth))
+                papers = set(papers) & set(self.searchByAuthor(auth))
             if clf != "":
-                papers = set(papers) & set(self.narrowClf(clf))
+                papers = set(papers) & set(self.searchByClf(clf))
             if aff != "":
-                papers = set(papers) & set(self.narrowAff(aff))
+                papers = set(papers) & set(self.searchByAff(aff))
             papers = list(papers)
         elif auth == "":
             self.indexAuthor(Author(self.db).All())
@@ -946,17 +947,17 @@ class RposMain(wx.Frame):
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def narrowTitleAndRead(self, narTitle, narRead):
+    def searchByTitleAndIsRead(self, title, is_read):
         p = Paper(self.db)
-        if narRead == "Done":
+        if is_read == "Done":
             isread = 1
-        elif narRead == "Not Yet":
+        elif is_read == "Not Yet":
             isread = 0
         else:
             isread = None
-        return p.where(title=narTitle, isread=isread)
+        return p.where(title=title, isread=isread)
 
-    def narrowAuthor(self, narAuthor):
+    def searchByAuthor(self, narAuthor):
         a = Author(self.db)
         authors = a.where(name=narAuthor)
         papers = []
@@ -968,17 +969,17 @@ class RposMain(wx.Frame):
         self.indexAuthor(authors)
         return list(dict.fromkeys(papers))
 
-    def narrowClf(self, clf):
+    def searchByClf(self, clf):
         c = Classification(self.db)
         narClf = c.where(name=clf)
         return c.papers(narClf[0][0])
 
-    def narrowAff(self, aff):
+    def searchByAff(self, aff):
         af = Affiliation(self.db)
         narAff = af.where(name=aff)
         return af.papers(narAff[0][0])
 
-    def resetNarrowing(self, event):
+    def resetSearching(self, event):
         self.title_txt_ctrl.SetValue("")
         self.author_txt_ctrl.SetValue("")
         self.clf_cmb.SetSelection(-1)
