@@ -323,11 +323,11 @@ class RposMain(wx.Frame):
 
         self.Layout()
 
-        self.Bind(wx.EVT_TEXT_ENTER, self.narrowPaper, self.title_txt_ctrl)
-        self.Bind(wx.EVT_TEXT_ENTER, self.narrowPaper, self.author_txt_ctrl)
-        self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.clf_cmb)
-        self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.aff_cmb)
-        self.Bind(wx.EVT_COMBOBOX, self.narrowPaper, self.has_read_cmb)
+        self.Bind(wx.EVT_SEARCH, self.searchPaper, self.title_txt_ctrl)
+        self.Bind(wx.EVT_SEARCH, self.searchPaper, self.author_txt_ctrl)
+        self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.clf_cmb)
+        self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.aff_cmb)
+        self.Bind(wx.EVT_COMBOBOX, self.searchPaper, self.has_read_cmb)
         self.Bind(wx.EVT_BUTTON, self.resetNarrowing, self.reset_btn)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.treeCtrlActivated, self.clf_tree_ctrl)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.treeCtrlRightClicked, self.clf_tree_ctrl)
@@ -545,7 +545,8 @@ class RposMain(wx.Frame):
         else:
             msg = wx.MessageBox(u'File not found', u'File Not Found', wx.ICON_ERROR)
 
-    def narrowPaper(self, event):
+    def searchPaper(self, event):
+        print("Search papers")
         title = self.title_txt_ctrl.GetValue()
         auth = self.author_txt_ctrl.GetValue()
         clf = self.clf_cmb.GetValue().strip()
@@ -877,7 +878,7 @@ class RposMain(wx.Frame):
         else:
             return
 
-        self.narrowPaper(event)
+        self.searchPaper(event)
 
     def authGridLeftClick(self, event):
         event.Skip()
