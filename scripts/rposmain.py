@@ -100,7 +100,6 @@ class CreateDB(wx.Frame):
 
 class WelcomePage(wx.Frame):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: WelcomePage.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((600, 400))
@@ -109,66 +108,73 @@ class WelcomePage(wx.Frame):
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
         self.SetIcon(_icon)
 
-        self.panel_1 = wx.Panel(self, wx.ID_ANY)
+        self.set_layout()
+        self.Layout()
+        self.Centre()
 
-        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        self.Bind(wx.EVT_BUTTON, self.selectedDB, self.select_db_btn)
+        self.Bind(wx.EVT_BUTTON, self.createNewDB, self.create_db_btn)
+        self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
 
-        sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
+    def set_layout(self):
+        # Separate window into 4 parts vertically
+        # Top: Welcome message
+        # 2nd: Select DB
+        # 3rd: Create DB
+        # Bottom: Github URL
 
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_5, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        self.panel_main = wx.Panel(self, wx.ID_ANY)
+        sizer_main = wx.BoxSizer(wx.VERTICAL)
+        self.panel_main.SetSizer(sizer_main)
 
-        welcome = wx.StaticText(self.panel_1, wx.ID_ANY, "Welcome to RPOS!")
-        welcome.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_5.Add(welcome, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+        # Top: Welcome message
+        sizer_welcom_msg = wx.BoxSizer(wx.HORIZONTAL)
+        welcome_txt = wx.StaticText(self.panel_main, wx.ID_ANY, "Welcome to RPOS!")
+        welcome_txt.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_welcom_msg.Add(welcome_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
 
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_3, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
-
-        selectDB_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Select Database", style=wx.ALIGN_CENTER_HORIZONTAL)
-        selectDB_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(selectDB_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
-
-        self.selectDB_dbx = wx.ComboBox(self.panel_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-        self.selectDB_dbx.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        # 2nd: Select DB
+        # [Label for select DB] [ComboBox for select DB] [Button for select DB]
+        # First check if there is any DB in the resource/db folder
         if not os.path.exists('./resource'):
             os.mkdir('./resource')
         if not os.path.exists('./resource/db'):
             os.mkdir('./resource/db')
         self.dbs = os.listdir('./resource/db')
+
+        sizer_select_db = wx.BoxSizer(wx.HORIZONTAL)
+        select_db_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Select Database", style=wx.ALIGN_CENTER_HORIZONTAL)
+        select_db_lbl.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.select_db_cbx = wx.ComboBox(self.panel_main, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.select_db_cbx.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
         for db in self.dbs:
-            self.selectDB_dbx.Append(db)
+            self.select_db_cbx.Append(db)
         if len(self.dbs) >= 1:
-            self.selectDB_dbx.SetSelection(0)
-        sizer_3.Add(self.selectDB_dbx, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+            self.select_db_cbx.SetSelection(0)
+        self.select_db_btn = wx.Button(self.panel_main, wx.ID_ANY, "Open")
+        self.select_db_btn.SetMinSize((100, 40))
+        self.select_db_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_select_db.Add(select_db_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
+        sizer_select_db.Add(self.select_db_cbx, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+        sizer_select_db.Add(self.select_db_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
 
-        self.selectDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Open")
-        self.selectDB_btn.SetMinSize((100, 40))
-        self.selectDB_btn.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_3.Add(self.selectDB_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 13)
+        # 3rd: Create button
+        sizer_create_db_btn = wx.BoxSizer(wx.HORIZONTAL)
+        self.create_db_btn = wx.Button(self.panel_main, wx.ID_ANY, "Create New")
+        self.create_db_btn.SetMinSize((120, 50))
+        self.create_db_btn.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        sizer_create_db_btn.Add(self.create_db_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 30)
 
-        sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2.Add(sizer_4, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        # Bottom: Github URL
+        self.rpos_github_hl = wx.adv.HyperlinkCtrl(self.panel_main, wx.ID_ANY, "https://github.com/motthi/rpos", "https://github.com/motthi/rpos")
+        self.rpos_github_hl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
 
-        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create New")
-        self.createDB_btn.SetMinSize((120, 50))
-        self.createDB_btn.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_4.Add(self.createDB_btn, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 30)
+        sizer_main.Add(sizer_welcom_msg, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        sizer_main.Add(sizer_select_db, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        sizer_main.Add(sizer_create_db_btn, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        sizer_main.Add(self.rpos_github_hl, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-        self.rposGitHub_hl = wx.adv.HyperlinkCtrl(self.panel_1, wx.ID_ANY, "https://github.com/motthi/rpos", "https://github.com/motthi/rpos")
-        self.rposGitHub_hl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(self.rposGitHub_hl, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-
-        self.panel_1.SetSizer(sizer_1)
-
-        self.Layout()
-        self.Centre()
-
-        self.Bind(wx.EVT_BUTTON, self.selectedDB, self.selectDB_btn)
-        self.Bind(wx.EVT_BUTTON, self.createNewDB, self.createDB_btn)
-        self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
-        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
 
     def onKeyDown(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
@@ -176,21 +182,21 @@ class WelcomePage(wx.Frame):
         else:
             event.Skip()
 
-    def selectedDB(self, event):  # wxGlade: WelcomePage.<event_handler>
-        if self.selectDB_dbx.GetSelection() == -1:
-            wx.MessageBox("データベースを選択してください")
+    def selectedDB(self, event):
+        if self.select_db_cbx.GetSelection() == -1:
+            wx.MessageBox("Select database")
             return
-        db_name = './resource/db/' + str(self.dbs[self.selectDB_dbx.GetSelection()])
+        db_name = './resource/db/' + str(self.dbs[self.select_db_cbx.GetSelection()])
         self.Close()
-        self.RposMain = RposMain(None, wx.ID_ANY, db_name)
-        self.RposMain.Show()
+        self.rpos_main = RposMain(None, wx.ID_ANY, db_name)
+        self.rpos_main.Show()
 
-    def createNewDB(self, event):  # wxGlade: WelcomePage.<event_handler>
+    def createNewDB(self, event):
         self.Close()
-        self.CreateDB = CreateDB(None, wx.ID_ANY, "")
-        self.CreateDB.Show()
+        self.create_db = CreateDB(None, wx.ID_ANY, "")
+        self.create_db.Show()
 
-    def exitProgram(self, event):  # wxGlade: WelcomePage.<event_handler>
+    def exitProgram(self, event):
         self.Destroy()
 
 
