@@ -25,66 +25,67 @@ class CreateDB(wx.Frame):
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
         self.SetIcon(_icon)
 
-        self.panel_1 = wx.Panel(self, wx.ID_ANY)
-        self.panel_1.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        sizer_1 = wx.BoxSizer(wx.VERTICAL)
-
-        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
-
-        newDBname_lbl = wx.StaticText(self.panel_1, wx.ID_ANY, "Database Name")
-        newDBname_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(newDBname_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
-
-        self.newDBname_txt = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
-        self.newDBname_txt.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        sizer_2.Add(self.newDBname_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 9)
-
-        self.createDB_btn = wx.Button(self.panel_1, wx.ID_ANY, "Create")
-        sizer_2.Add(self.createDB_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
-
-        sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_1.Add(sizer_3, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
-
-        self.return_btn = wx.Button(self.panel_1, wx.ID_ANY, "Return")
-        sizer_3.Add(self.return_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
-
-        self.close_btn = wx.Button(self.panel_1, wx.ID_ANY, "Close")
-        sizer_3.Add(self.close_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
-
-        self.panel_1.SetSizer(sizer_1)
-
+        self.set_layout()
         self.Layout()
         self.Centre()
 
-        self.Bind(wx.EVT_BUTTON, self.createDB, self.createDB_btn)
+        self.Bind(wx.EVT_BUTTON, self.createDB, self.create_db_btn)
         self.Bind(wx.EVT_BUTTON, self.returnToWelcomePage, self.return_btn)
         self.Bind(wx.EVT_BUTTON, self.closeWindow, self.close_btn)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
         self.Bind(wx.EVT_CHAR_HOOK, self.onKeyDown)
 
+    def set_layout(self):
+        # Separate window into 2 parts vertically
+        # 1st part is for entering database name
+        # 2nd part is for buttons
+
+        self.panel_main = wx.Panel(self, wx.ID_ANY)
+        self.panel_main.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+
+        sizer_main = wx.BoxSizer(wx.VERTICAL)
+        sizer_db_name = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_btn = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_main.Add(sizer_db_name, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        sizer_main.Add(sizer_btn, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+        db_name_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Database Name")
+        db_name_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.db_name_txt = wx.TextCtrl(self.panel_main, wx.ID_ANY, "")
+        self.db_name_txt.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.create_db_btn = wx.Button(self.panel_main, wx.ID_ANY, "Create")
+        self.return_btn = wx.Button(self.panel_main, wx.ID_ANY, "Return")
+        self.close_btn = wx.Button(self.panel_main, wx.ID_ANY, "Close")
+
+        sizer_db_name.Add(db_name_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
+        sizer_db_name.Add(self.db_name_txt, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 9)
+        sizer_db_name.Add(self.create_db_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 10)
+        sizer_btn.Add(self.return_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
+        sizer_btn.Add(self.close_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
+
+        self.panel_main.SetSizer(sizer_main)
+
     def onKeyDown(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.returnToWelcomePage()
+            self.returnToWelcomePage(event)
         else:
             event.Skip()
 
     def createDB(self, event):
-        db_name = self.newDBname_txt.GetValue()
+        db_name = self.db_name_txt.GetValue()
         if db_name == "" or db_name == None:
-            wx.MessageBox("ファイル名を入力してください")
+            wx.MessageBox("Enter database name")
         elif os.path.splitext(db_name)[1] == "":
-            wx.MessageBox("拡張子を入力してください")
-        elif os.path.exists("./resource/db/" + db_name):
-            wx.MessageBox("すでに存在するデータベースです")
+            wx.MessageBox("Enter database name with extension")
+        elif os.path.exists(f"./resource/db/{db_name}"):
+            wx.MessageBox("Database already exists")
         else:
-            createAllTables("./resource/db/" + db_name)
-            if not os.path.exists('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0]):
-                os.mkdir('./resource/doc/' + os.path.splitext(os.path.basename(db_name))[0])
+            createAllTables(f"./resource/db/{db_name}")
+            if not os.path.exists(f'./resource/doc/{os.path.splitext(os.path.basename(db_name))[0]}'):
+                os.mkdir(f'./resource/doc/{os.path.splitext(os.path.basename(db_name))[0]}')
             self.Close()
-            self.RposMain = RposMain(None, wx.ID_ANY, "./resource/db/" + db_name)
-            self.RposMain.Show()
+            self.rpos_main = RposMain(None, wx.ID_ANY, "./resource/db/" + db_name)
+            self.rpos_main.Show()
 
     def exitProgram(self, event):
         self.Destroy()
@@ -175,7 +176,6 @@ class WelcomePage(wx.Frame):
         sizer_main.Add(sizer_create_db_btn, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
         sizer_main.Add(self.rpos_github_hl, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-
     def onKeyDown(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
             self.Close()
@@ -186,7 +186,7 @@ class WelcomePage(wx.Frame):
         if self.select_db_cbx.GetSelection() == -1:
             wx.MessageBox("Select database")
             return
-        db_name = './resource/db/' + str(self.dbs[self.select_db_cbx.GetSelection()])
+        db_name = f'./resource/db/{str(self.dbs[self.select_db_cbx.GetSelection()])}'
         self.Close()
         self.rpos_main = RposMain(None, wx.ID_ANY, db_name)
         self.rpos_main.Show()
