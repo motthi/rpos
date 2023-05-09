@@ -26,8 +26,6 @@ class CreateDB(wx.Frame):
         self.SetIcon(_icon)
 
         self.set_layout()
-        self.Layout()
-        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.createDB, self.create_db_btn)
         self.Bind(wx.EVT_BUTTON, self.returnToWelcomePage, self.return_btn)
@@ -64,6 +62,9 @@ class CreateDB(wx.Frame):
         sizer_btn.Add(self.close_btn, 0, wx.ALIGN_BOTTOM | wx.ALL, 10)
 
         self.panel_main.SetSizer(sizer_main)
+        
+        self.Layout()
+        self.Centre()
 
     def onKeyDown(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
@@ -110,8 +111,6 @@ class WelcomePage(wx.Frame):
         self.SetIcon(_icon)
 
         self.set_layout()
-        self.Layout()
-        self.Centre()
 
         self.Bind(wx.EVT_BUTTON, self.selectedDB, self.select_db_btn)
         self.Bind(wx.EVT_BUTTON, self.createNewDB, self.create_db_btn)
@@ -176,6 +175,9 @@ class WelcomePage(wx.Frame):
         sizer_main.Add(sizer_create_db_btn, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
         sizer_main.Add(self.rpos_github_hl, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
+        self.Layout()
+        self.Centre()
+
     def onKeyDown(self, event):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
             self.Close()
@@ -208,126 +210,11 @@ class RposMain(wx.Frame):
         self.SetSize((1296, 696))
         self.SetTitle("rpos")
 
-        # Icon
         _icon = wx.NullIcon
         _icon.CopyFromBitmap(wx.Bitmap("./resource/document-2-512.jpg", wx.BITMAP_TYPE_ANY))
         self.SetIcon(_icon)
 
-        self.SetBackgroundColour(wx.Colour(239, 247, 255))
-
-        self.createMenuBar()
-
-        self.panel = wx.Panel(self, wx.ID_ANY)
-        grid_sizer = wx.FlexGridSizer(rows=2, cols=2, vgap=1, hgap=0)
-
-        sizer_8 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_12 = wx.BoxSizer(wx.VERTICAL)
-        sizer_13 = wx.BoxSizer(wx.VERTICAL)
-        sizer_14 = wx.BoxSizer(wx.VERTICAL)
-        sizer_15 = wx.BoxSizer(wx.VERTICAL)
-        sizer_16 = wx.BoxSizer(wx.VERTICAL)
-
-        show_label_idx_lbl = wx.StaticText(self.panel, wx.ID_ANY, u"ラベル一覧")
-        show_label_idx_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        idx_paper_lbl = wx.StaticText(self.panel, wx.ID_ANY, u"論文一覧　　")
-        idx_paper_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        title_lbl = wx.StaticText(self.panel, wx.ID_ANY, "Title")
-        title_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.title_txt_ctrl = wx.SearchCtrl(self.panel, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
-        self.title_txt_ctrl.SetMinSize((110, 23))
-        self.title_txt_ctrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        self.title_txt_ctrl.ShowCancelButton(True)
-
-        author_lbl = wx.StaticText(self.panel, wx.ID_ANY, "Author")
-        author_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.author_txt_ctrl = wx.SearchCtrl(self.panel, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
-        self.author_txt_ctrl.SetMinSize((130, 23))
-        self.author_txt_ctrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        self.author_txt_ctrl.ShowCancelButton(True)
-
-        clf_lbl = wx.StaticText(self.panel, wx.ID_ANY, "Classification")
-        clf_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.clf_cmb = wx.ComboBox(self.panel, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-        self.clf_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        for clf in self.getClfWithSubLayer():
-            self.clf_cmb.Append(str("  ") * clf[0] + clf[1])
-
-        aff_lbl = wx.StaticText(self.panel, wx.ID_ANY, "Affiliation")
-        aff_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.aff_cmb = wx.ComboBox(self.panel, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-        self.aff_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        for aff in Affiliation(self.db).All():
-            self.aff_cmb.Append(aff[1])
-
-        has_red_label = wx.StaticText(self.panel, wx.ID_ANY, "IsRead")
-        has_red_label.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.has_read_cmb = wx.ComboBox(self.panel, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-        self.has_read_cmb.SetMinSize((50, 23))
-        self.has_read_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        self.reset_btn = wx.Button(self.panel, wx.ID_ANY, "Reset")
-        self.reset_btn.SetMinSize((55, 30))
-        self.reset_btn.SetBackgroundColour(wx.Colour(217, 250, 255))
-        self.reset_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-
-        sizer_10.Add(sizer_8, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
-        sizer_8.Add(idx_paper_lbl, 0, 0, 0)
-        sizer_10.Add(sizer_11, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
-        sizer_11.Add(sizer_12, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
-        sizer_12.Add(title_lbl, 0, 0, 0)
-        sizer_12.Add(self.title_txt_ctrl, 0, wx.LEFT, 20)
-        sizer_11.Add(sizer_13, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
-        sizer_16.Add(has_red_label, 0, 0, 0)
-        sizer_13.Add(author_lbl, 0, 0, 0)
-        sizer_11.Add(sizer_14, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
-        sizer_14.Add(clf_lbl, 0, 0, 0)
-        sizer_13.Add(self.author_txt_ctrl, 0, wx.LEFT, 20)
-        sizer_14.Add(self.clf_cmb, 0, wx.EXPAND | wx.LEFT, 20)
-        sizer_11.Add(sizer_15, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
-        sizer_15.Add(aff_lbl, 0, 0, 0)
-        sizer_15.Add(self.aff_cmb, 0, wx.EXPAND | wx.LEFT, 20)
-        sizer_11.Add(sizer_16, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
-        sizer_16.Add(self.has_read_cmb, 0, wx.LEFT, 20)
-        sizer_11.Add(self.reset_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
-
-        self.clf_tree_ctrl = wx.TreeCtrl(self.panel, wx.ID_ANY)
-        self.clf_tree_ctrl.SetBackgroundColour(wx.Colour(255, 250, 239))
-        self.clf_tree_ctrl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
-        self.indexClassifications(Classification(self.db), Classification(self.db).All('turn', 'ASC'))
-
-        self.notebook = wx.Notebook(self.panel, wx.ID_ANY)
-        self.notebook.SetBackgroundColour(wx.Colour(239, 247, 255))
-
-        self.paper_ntbk_pnl, self.paper_grid = self.initializePaperGrid()
-        self.auth_ntbk_tbl, self.auth_grid = self.initializeAuthorGrid()
-        self.aff_ntbk_pnl, self.aff_grid = self.initializeAffiliationGrid()
-        self.indexPaper(Paper(self.db).All())
-        self.indexAuthor(Author(self.db).All())
-        self.indexAffiliation(Affiliation(self.db).All())
-
-        self.notebook.AddPage(self.paper_ntbk_pnl, "Papers")
-        self.notebook.AddPage(self.auth_ntbk_tbl, "Authors")
-        self.notebook.AddPage(self.aff_ntbk_pnl, "Affiliations")
-
-        grid_sizer.Add(show_label_idx_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
-        grid_sizer.Add(sizer_10, 1, wx.EXPAND, 0)
-        grid_sizer.Add(self.clf_tree_ctrl, 1, wx.ALL | wx.EXPAND, 3)
-        grid_sizer.Add(self.notebook, 1, wx.ALL | wx.EXPAND, 2)
-        grid_sizer.AddGrowableRow(1)
-        grid_sizer.AddGrowableCol(0, 1)
-        grid_sizer.AddGrowableCol(1, 1)
-        self.panel.SetSizer(grid_sizer)
-
-        self.Layout()
+        self.set_layout()
 
         self.Bind(wx.EVT_SEARCH, self.searchPaper, self.title_txt_ctrl)
         self.Bind(wx.EVT_SEARCH, self.searchPaper, self.author_txt_ctrl)
@@ -348,6 +235,120 @@ class RposMain(wx.Frame):
         self.Bind(wx.grid.EVT_GRID_CMD_CELL_RIGHT_CLICK, self.affGridRightClick, self.aff_grid)
         self.Bind(wx.grid.EVT_GRID_CMD_SELECT_CELL, self.affGridLeftClick, self.aff_grid)
         self.Bind(wx.EVT_CLOSE, self.exitProgram, self)
+
+    def set_layout(self):
+        self.SetBackgroundColour(wx.Colour(239, 247, 255))
+        self.createMenuBar()
+
+        self.panel_main = wx.Panel(self, wx.ID_ANY)
+        sizer_main = wx.FlexGridSizer(rows=2, cols=2, vgap=1, hgap=0)
+
+        # Label of "Classification lists" and "Paper lists"
+        idx_clf_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, u"Classification lists")
+        idx_clf_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        idx_paper_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, u"Paper lists　　")
+        idx_paper_lbl.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+
+        # Search by title
+        title_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Title")
+        title_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.title_txt_ctrl = wx.SearchCtrl(self.panel_main, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
+        self.title_txt_ctrl.SetMinSize((110, 23))
+        self.title_txt_ctrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.title_txt_ctrl.ShowCancelButton(True)
+
+        # Search by author
+        author_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Author")
+        author_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.author_txt_ctrl = wx.SearchCtrl(self.panel_main, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
+        self.author_txt_ctrl.SetMinSize((130, 23))
+        self.author_txt_ctrl.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.author_txt_ctrl.ShowCancelButton(True)
+
+        # Search by classification
+        clf_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Classification")
+        clf_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.clf_cmb = wx.ComboBox(self.panel_main, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.clf_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        for clf in self.getClfWithSubLayer():
+            self.clf_cmb.Append(str("  ") * clf[0] + clf[1])
+
+        # Search by affiliation
+        aff_lbl = wx.StaticText(self.panel_main, wx.ID_ANY, "Affiliation")
+        aff_lbl.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.aff_cmb = wx.ComboBox(self.panel_main, wx.ID_ANY, choices=[""], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.aff_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        for aff in Affiliation(self.db).All():
+            self.aff_cmb.Append(aff[1])
+
+        # Search by "has read"
+        has_red_label = wx.StaticText(self.panel_main, wx.ID_ANY, "HasRead")
+        has_red_label.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.has_read_cmb = wx.ComboBox(self.panel_main, wx.ID_ANY, choices=["", "Not Yet", "Done"], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.has_read_cmb.SetMinSize((50, 23))
+        self.has_read_cmb.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+
+        # Search reset button
+        self.reset_btn = wx.Button(self.panel_main, wx.ID_ANY, "Reset")
+        self.reset_btn.SetMinSize((55, 30))
+        self.reset_btn.SetBackgroundColour(wx.Colour(217, 250, 255))
+        self.reset_btn.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+
+        # Classification Tree
+        self.clf_tree_ctrl = wx.TreeCtrl(self.panel_main, wx.ID_ANY)
+        self.clf_tree_ctrl.SetBackgroundColour(wx.Colour(255, 250, 239))
+        self.clf_tree_ctrl.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Yu Gothic UI"))
+        self.indexClassifications(Classification(self.db), Classification(self.db).All('turn', 'ASC'))
+
+        # Notebooks
+        self.notebook = wx.Notebook(self.panel_main, wx.ID_ANY)
+        self.notebook.SetBackgroundColour(wx.Colour(239, 247, 255))
+        self.paper_ntbk_pnl, self.paper_grid = self.initializePaperGrid()
+        self.auth_ntbk_tbl, self.auth_grid = self.initializeAuthorGrid()
+        self.aff_ntbk_pnl, self.aff_grid = self.initializeAffiliationGrid()
+        self.indexPaper(Paper(self.db).All())
+        self.indexAuthor(Author(self.db).All())
+        self.indexAffiliation(Affiliation(self.db).All())
+        self.notebook.AddPage(self.paper_ntbk_pnl, "Papers")
+        self.notebook.AddPage(self.auth_ntbk_tbl, "Authors")
+        self.notebook.AddPage(self.aff_ntbk_pnl, "Affiliations")
+
+        # Layout of the top panel
+        sizer_paper_info = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_search_main = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_search_title = wx.BoxSizer(wx.VERTICAL)
+        sizer_search_author = wx.BoxSizer(wx.VERTICAL)
+        sizer_search_clf = wx.BoxSizer(wx.VERTICAL)
+        sizer_search_aff = wx.BoxSizer(wx.VERTICAL)
+        sizer_search_hasred = wx.BoxSizer(wx.VERTICAL)
+        sizer_paper_info.Add(idx_paper_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        sizer_paper_info.Add(sizer_search_main, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 2)
+        sizer_search_main.Add(sizer_search_title, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
+        sizer_search_main.Add(sizer_search_author, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
+        sizer_search_main.Add(sizer_search_clf, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
+        sizer_search_main.Add(sizer_search_hasred, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
+        sizer_search_main.Add(sizer_search_aff, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 4)
+        sizer_search_main.Add(self.reset_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 0)
+        sizer_search_title.Add(title_lbl, 0, 0, 0)
+        sizer_search_title.Add(self.title_txt_ctrl, 0, wx.LEFT, 20)
+        sizer_search_author.Add(author_lbl, 0, 0, 0)
+        sizer_search_author.Add(self.author_txt_ctrl, 0, wx.LEFT, 20)
+        sizer_search_clf.Add(clf_lbl, 0, 0, 0)
+        sizer_search_clf.Add(self.clf_cmb, 0, wx.EXPAND | wx.LEFT, 20)
+        sizer_search_aff.Add(aff_lbl, 0, 0, 0)
+        sizer_search_aff.Add(self.aff_cmb, 0, wx.EXPAND | wx.LEFT, 20)
+        sizer_search_hasred.Add(has_red_label, 0, 0, 0)
+        sizer_search_hasred.Add(self.has_read_cmb, 0, wx.LEFT, 20)
+
+        sizer_main.Add(idx_clf_lbl, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 3)
+        sizer_main.Add(sizer_paper_info, 1, wx.EXPAND, 0)
+        sizer_main.Add(self.clf_tree_ctrl, 1, wx.ALL | wx.EXPAND, 3)
+        sizer_main.Add(self.notebook, 1, wx.ALL | wx.EXPAND, 2)
+        sizer_main.AddGrowableRow(1)
+        sizer_main.AddGrowableCol(0, 1)
+        sizer_main.AddGrowableCol(1, 3)
+        self.panel_main.SetSizer(sizer_main)
+        self.Layout()
 
     def createMenuBar(self):
         self.rposmain_menubar = wx.MenuBar()
@@ -953,7 +954,7 @@ class RposMain(wx.Frame):
         self.paper_grid.PopupMenu(menu)
         menu.Destroy()
 
-    def searchByTitleAndIsRead(self, title, is_read):
+    def searchByTitleAndHasRead(self, title, is_read):
         p = Paper(self.db)
         if is_read == "Done":
             isread = 1
